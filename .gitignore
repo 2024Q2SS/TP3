@@ -1,6 +1,12 @@
 # Compiled class file
 *.class
 
+#nuestros
+*.gif
+*.csv
+*.json
+*.nix
+
 # Log file
 *.log
 
