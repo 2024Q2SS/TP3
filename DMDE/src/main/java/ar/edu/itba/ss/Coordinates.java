@@ -3,33 +3,31 @@ package ar.edu.itba.ss;
 import java.util.Objects;
 
 public class Coordinates{
-    private Integer x;
-    private Integer y;
+    private Double x;
+    private Double y;
 
-    public Coordinates(Integer x, Integer y) {
+    public Coordinates(Double x, Double y) {
         this.x = x;
         this.y = y;
     }
 
-    public Integer getX() {
+    public Double getX() {
         return this.x;
     }
 
-    public Integer getY() {
+    public Double getY() {
         return this.y;
     }
 
-    public Integer getZ() {
-        return 0;
-    }
 
-    public void setX(Integer x) {
+    public void setX(Double x) {
         this.x = x;
     }
 
-    public void setY(Integer y) {
+    public void setY(Double y) {
         this.y = y;
     }
+
 
     public Double euclideanDistance(Coordinates other) {
         return Math.sqrt(Math.pow(this.getX() - other.getX(), 2) + Math.pow(this.getY() - other.getY(), 2));
