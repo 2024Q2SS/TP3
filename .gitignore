@@ -28,3 +28,48 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Ignore Maven build output
+target/
+
+# Ignore Eclipse project files
+.classpath
+.project
+.settings/
+
+# Ignore IntelliJ IDEA project files
+.idea/
+*.iml
+*.iws
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore Maven Wrapper files
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore build artifacts
+*.jar
+*.war
+*.ear
+
+# Ignore IDE-specific files
+*.classpath
+*.project
+*.settings/
+*.sublime-project
+*.sublime-workspace
+*.vscode/
+
+# Ignore Maven cache (usually not necessary)
+.m2/
+

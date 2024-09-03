@@ -1,7 +1,5 @@
 package ar.edu.itba.ss;
 
-
-
 public class Particle {
     private Coordinates coordinates;
     private Integer id;
@@ -10,8 +8,7 @@ public class Particle {
     private Double velocity;
     private Double degree;
 
-
-    public Particle(Integer id, Double radius,Double velocity,Double mass,Double degree) {
+    public Particle(Integer id, Double radius, Double velocity, Double mass, Double degree) {
         this.id = id;
         this.radius = radius;
         this.velocity = velocity;
@@ -19,7 +16,7 @@ public class Particle {
         this.degree = degree;
     }
 
-    public Particle(Integer id, Coordinates coordinates, Double radius,Double velocity,Double mass,Double degree) {
+    public Particle(Integer id, Coordinates coordinates, Double radius, Double velocity, Double mass, Double degree) {
         this.coordinates = coordinates;
         this.id = id;
         this.radius = radius;
@@ -36,7 +33,6 @@ public class Particle {
         return coordinates;
     }
 
-
     public Integer getId() {
         return id;
     }
@@ -45,28 +41,32 @@ public class Particle {
         return radius;
     }
 
-    public Double getVelocity(){
+    public Double getVelocity() {
         return velocity;
     }
 
-    public void setVelocity(Double velocity){
+    public void setVelocity(Double velocity) {
         this.velocity = velocity;
     }
 
-    public Double getMass(){
+    public Double getMass() {
         return mass;
     }
 
-    public void setMass(Double mass){
-        this.mass = mass ;
+    public void setMass(Double mass) {
+        this.mass = mass;
     }
-    
-    public Double getDegree(){
+
+    public Double getDegree() {
         return degree;
     }
 
-    public void setDegree(Double degree){
-        this.degree = degree ;
+    public void setDegree(Double degree) {
+        this.degree = degree;
     }
 
+    @Override
+    public String toString() {
+        return "{id:" + id + " " + coordinates;
+    }
 }
