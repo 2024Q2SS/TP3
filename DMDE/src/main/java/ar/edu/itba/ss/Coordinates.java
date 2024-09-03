@@ -2,7 +2,7 @@ package ar.edu.itba.ss;
 
 import java.util.Objects;
 
-public class Coordinates{
+public class Coordinates {
     private Double x;
     private Double y;
 
@@ -19,7 +19,6 @@ public class Coordinates{
         return this.y;
     }
 
-
     public void setX(Double x) {
         this.x = x;
     }
@@ -27,7 +26,6 @@ public class Coordinates{
     public void setY(Double y) {
         this.y = y;
     }
-
 
     public Double euclideanDistance(Coordinates other) {
         return Math.sqrt(Math.pow(this.getX() - other.getX(), 2) + Math.pow(this.getY() - other.getY(), 2));

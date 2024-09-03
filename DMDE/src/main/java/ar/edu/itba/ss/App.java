@@ -38,7 +38,7 @@ public class App {
         String path = Paths.get(rootDir, "output.csv").toString();
         try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {
             writer.println("p_id,p_x,p_y");
-            for (Particle particle : board.getParticles().values()) {
+            for (Particle particle : board.getParticles()) {
                 writer.println(particle.getId() + "," + particle.getCoordinates().getX() + ","
                         + particle.getCoordinates().getY());
             }

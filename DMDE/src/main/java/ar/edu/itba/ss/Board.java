@@ -1,11 +1,17 @@
 package ar.edu.itba.ss;
 
-import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
+
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
 public class Board {
 
-    private Map<Coordinates, Particle> particles = new HashMap<>();
+    private Map<Coordinates, Cell> cellMap = new HashMap<>();
+    private Double interactionRadius;
+    private Set<Particle> particles = new TreeSet<>();
     private Double length = 0.1;
     private Double obstacleRadius = 0.005;
     private Double particleRadius = 0.001;
@@ -19,6 +25,7 @@ public class Board {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
+
         System.out.println("initializing board");
         initialize();
         System.out.println("finished initializing board");
@@ -36,7 +43,7 @@ public class Board {
         if (particles.isEmpty()) {
             return true;
         }
-        for (Particle other : particles.values()) {
+        for (Particle other : particles) {
             Double distance = position.euclideanDistance(other.getCoordinates());
             if (distance < 2 * particleRadius + 0.0001) // Adding a small buffer
                 return false;
@@ -62,20 +69,20 @@ public class Board {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
             Double vx = Math.random();
-            Double vy = Math.sqrt(1-Math.pow(vx,2));
+            Double vy = Math.sqrt(1 - Math.pow(vx, 2));
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
-            particles.put(coord, aux);
+            particles.add(aux);
         }
     }
 
-    public void updateBoard(){
-        for(Particle particle : particles){
-                       
+    public void updateBoard() {
+        for (Particle particle : particles) {
+
         }
     }
 
-    public Map<Coordinates, Particle> getParticles() {
+    public Set<Particle> getParticles() {
         return particles;
     }
 

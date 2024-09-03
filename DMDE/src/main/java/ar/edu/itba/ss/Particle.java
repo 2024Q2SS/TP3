@@ -1,6 +1,6 @@
 package ar.edu.itba.ss;
 
-public class Particle {
+public class Particle implements Comparable<Particle> {
     private Coordinates coordinates;
     private Integer id;
     private Double radius;
@@ -8,7 +8,7 @@ public class Particle {
     private Double vx;
     private Double vy;
 
-    public Particle(Integer id, Double radius, Double vx,Double vy, Double mass) {
+    public Particle(Integer id, Double radius, Double vx, Double vy, Double mass) {
         this.id = id;
         this.radius = radius;
         this.vx = vx;
@@ -16,7 +16,7 @@ public class Particle {
         this.mass = mass;
     }
 
-    public Particle(Integer id, Coordinates coordinates, Double radius, Double vx,Double vy, Double mass) {
+    public Particle(Integer id, Coordinates coordinates, Double radius, Double vx, Double vy, Double mass) {
         this.coordinates = coordinates;
         this.id = id;
         this.radius = radius;
@@ -46,16 +46,17 @@ public class Particle {
     }
 
     public void setVx(Double vx) {
-        this.vx= vx;
+        this.vx = vx;
     }
-    
+
     public Double getVy() {
         return vy;
     }
 
     public void setVy(Double vy) {
-        this.vy= vy;
+        this.vy = vy;
     }
+
     public Double getMass() {
         return mass;
     }
@@ -64,9 +65,13 @@ public class Particle {
         this.mass = mass;
     }
 
-
     @Override
     public String toString() {
-        return "{id:" + id + " " + coordinates;
+        return "id:" + id + " " + coordinates + " (" + vx + "," + vy + ")";
+    }
+
+    @Override
+    public int compareTo(Particle other) {
+        return Integer.compare(this.id, other.id);
     }
 }
