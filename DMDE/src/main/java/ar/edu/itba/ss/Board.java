@@ -19,34 +19,45 @@ public class Board {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
+        System.out.println("initializing board");
         initialize();
+        System.out.println("finished initializing board");
     }
 
-    public Boolean notInsideObstacle(Coordinates position) {
-        Double dx = position.getX() - 0.1 * 0.5;
-        Double dy = position.getY() - 0.1 * 0.5;
-        Double distanceSq = dx * dx + dy * dy;
+public Boolean notInsideObstacle(Coordinates position) {
+    Double dx = position.getX() - 0.05; // Assuming obstacle center is at (0.05, 0.05)
+    Double dy = position.getY() - 0.05;
+    Double distanceSq = dx * dx + dy * dy;
+    Double safeDistance = obstacleRadius + particleRadius + 0.0001; // Adding a small buffer
+    return distanceSq >= safeDistance * safeDistance;
+}
 
-        return distanceSq - obstacleRadius - particleRadius > 0;
-    }
-
-    public Boolean notOnOtherParticle(Coordinates position) {
-        for (Particle other : particles.values()) {
-            if (position.euclideanDistance(other.getCoordinates()) - 2 * particleRadius <= 0)
-                return false;
-        }
+public Boolean notOnOtherParticle(Coordinates position) {
+    if (particles.isEmpty()) {
         return true;
     }
+    for (Particle other : particles.values()) {
+        Double distance = position.euclideanDistance(other.getCoordinates());
+        if (distance < 2 * particleRadius + 0.0001) // Adding a small buffer
+            return false;
+    }
+    return true;
+}
 
     public Coordinates generateCoord() {
         Double min = 0.0;
         Double max = length;
         Coordinates aux;
-        do {
-            aux = new Coordinates(Math.random() * (max - min + 1) + min, Math.random() * (max - min + 1) + min);
-        } while (aux.getX() != min && aux.getX() != max &&
-                aux.getY() != min && aux.getY() != max &&
-                notInsideObstacle(aux) && notOnOtherParticle(aux));
+        System.out.println("generating coord");
+        do{
+            aux = new Coordinates(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
+            System.out.println("looking for new coords");
+        }
+        while(  
+            aux.getX() - particleRadius < min || aux.getX() + particleRadius > max ||
+            aux.getY() - particleRadius < min || aux.getY() + particleRadius > max ||
+            !notInsideObstacle(aux)  && !notOnOtherParticle(aux)
+        );
         return aux;
     }
 
@@ -54,6 +65,7 @@ public class Board {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
             Particle aux = new Particle(i, coord, particleRadius, velocity, mass, Math.random() * 360);
+            System.out.println("created particle "+ i);
             particles.put(coord, aux);
         }
     }
