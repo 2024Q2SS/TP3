@@ -61,9 +61,17 @@ public class Board {
     public void initialize() {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
-            Particle aux = new Particle(i, coord, particleRadius, velocity, mass, Math.random() * 360);
+            Double vx = Math.random();
+            Double vy = Math.sqrt(1-Math.pow(vx,2));
+            Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
             particles.put(coord, aux);
+        }
+    }
+
+    public void updateBoard(){
+        for(Particle particle : particles){
+                       
         }
     }
 

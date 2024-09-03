@@ -5,24 +5,24 @@ public class Particle {
     private Integer id;
     private Double radius;
     private Double mass;
-    private Double velocity;
-    private Double degree;
+    private Double vx;
+    private Double vy;
 
-    public Particle(Integer id, Double radius, Double velocity, Double mass, Double degree) {
+    public Particle(Integer id, Double radius, Double vx,Double vy, Double mass) {
         this.id = id;
         this.radius = radius;
-        this.velocity = velocity;
+        this.vx = vx;
+        this.vy = vy;
         this.mass = mass;
-        this.degree = degree;
     }
 
-    public Particle(Integer id, Coordinates coordinates, Double radius, Double velocity, Double mass, Double degree) {
+    public Particle(Integer id, Coordinates coordinates, Double radius, Double vx,Double vy, Double mass) {
         this.coordinates = coordinates;
         this.id = id;
         this.radius = radius;
-        this.velocity = velocity;
+        this.vx = vx;
+        this.vy = vy;
         this.mass = mass;
-        this.degree = degree;
     }
 
     public void setCoordinate(Coordinates coordinates) {
@@ -41,14 +41,21 @@ public class Particle {
         return radius;
     }
 
-    public Double getVelocity() {
-        return velocity;
+    public Double getVx() {
+        return vx;
     }
 
-    public void setVelocity(Double velocity) {
-        this.velocity = velocity;
+    public void setVx(Double vx) {
+        this.vx= vx;
+    }
+    
+    public Double getVy() {
+        return vy;
     }
 
+    public void setVy(Double vy) {
+        this.vy= vy;
+    }
     public Double getMass() {
         return mass;
     }
@@ -57,13 +64,6 @@ public class Particle {
         this.mass = mass;
     }
 
-    public Double getDegree() {
-        return degree;
-    }
-
-    public void setDegree(Double degree) {
-        this.degree = degree;
-    }
 
     @Override
     public String toString() {
