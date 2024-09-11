@@ -4,12 +4,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.HashMap;
 import java.util.List;
 
 public class Board {
 
-    private Map<Coordinates, Cell> cellMap = new HashMap<>();
+    //private Map<Coordinates, Cell> cellMap = new HashMap<>();
+    private PriorityQueue<Event> eventQueue = new PriorityQueue<>();
     private Double interactionRadius;
     private Set<Particle> particles = new TreeSet<>();
     private Double length = 0.1;
@@ -76,9 +78,40 @@ public class Board {
         }
     }
 
-    public void updateBoard() {
-        for (Particle particle : particles) {
+    public void recalculateCollisions(){
+        double t = -1;
+        for(Particle particle :  particles){
+            t = particle.bounceX();
+            if(t > 0){
+                Event aux = new Event(
+            }
+        }
+    }
 
+    public void updateBoard() {
+        while(!priorityQueue.isEmpty()){
+            Event e1 = priorityQueue.pop();
+            if(e1.isInvalidated())
+                break;
+            if(e1.collisionType == collisions.PARTICLE){
+                for(Particle p in Particles){
+                    updatePosition(p,e1.getTime());
+                    if(p in e1.getParticles()){
+                        updateVelocity(p,e1.getTime());
+                    }
+                }
+            }
+             else if(e1.collisionType() == collisions.WALL)
+            {
+                for(Particle p in Particles){
+                    updatePosition(p,e1.getTime());
+                    if(p in e1.getParticles()){
+                        updateVelocity(p,e1.getTime());
+                    }
+                }
+            
+            }
+            recalculateCollisions(particles);
         }
     }
 
