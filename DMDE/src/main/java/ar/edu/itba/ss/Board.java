@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Board {
 
-    //private Map<Coordinates, Cell> cellMap = new HashMap<>();
+    // private Map<Coordinates, Cell> cellMap = new HashMap<>();
     private PriorityQueue<Event> eventQueue = new PriorityQueue<>();
     private Double interactionRadius;
     private Set<Particle> particles = new TreeSet<>();
@@ -79,47 +79,53 @@ public class Board {
         recalculateCollisions();
     }
 
-    public void recalculateCollisions(){
+    public void recalculateCollisions() {
         double t = -1;
-        for(Particle particle :  particles){
-            t = particle.collidesX(); //si no hay colision con una pared vertical => devuelve -1
-            if(t > 0){
-                Event aux = new Event(t,particle,null);
-            }
-            else if(t < 0){ //si no va a colisionar con paredes verticales, entonces me fijo contra horizontales
+        for (Particle particle : particles) {
+            t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
+            if (t > 0) {
+                Event aux = new Event(t, particle, null);
+                eventQueue.add(aux);
+            } else if (t < 0) { // si no va a colisionar con paredes verticales, entonces me fijo contra
+                                // horizontales
                 t = particle.collidesY();
-                if(t > 0){
-                    Event aux = new Event(t,null,particle);
+                if (t > 0) {
+                    Event aux = new Event(t, null, particle);
+                    eventQueue.add(aux);
                 }
             }
-            //chequear colisiones contra los vecinos
-            //hacemos esto solo si no colisiona contra paredes o siempre?
+            for (Particle other : particles) {
+                t = particle.collides(other);
+
+                Event aux = new Event(t, particle, other);
+                eventQueue.add(aux);
+            }
         }
+
     }
 
     public void updateBoard() {
-        while(!eventQueue.isEmpty()){
+        while (!eventQueue.isEmpty()) {
             Event e1 = eventQueue.remove();
             Particle a = e1.getA();
             Particle b = e1.getB();
-//deberiamos usar optional para prevenir acceder si es null?
-            if(e1.isInvalidated(a.getCollisionCount(),b.getCollisionCount()))
+            // deberiamos usar optional para prevenir acceder si es null?
+            if (e1.isInvalidated(a, b))
                 break;
-            if(a != null){
-                if(b != null){ //ambos son distintos de null
-                    a.collides(b);
+            if (a != null) {
+                if (b != null) { // ambos son distintos de null
+                    a.bounce(b);
                     break;
                 }
-                a.collidesX();
+                a.bounceX();
                 break;
             }
-            if(b != null ){ 
-                b.collidesY();
+            if (b != null) {
+                b.bounceY();
             }
+            recalculateCollisions();
         }
-        recalculateCollisions();
     }
-
 
     public Set<Particle> getParticles() {
         return particles;

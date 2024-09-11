@@ -9,7 +9,6 @@ public class Particle implements Comparable<Particle> {
     private Double vy;
     private int collisions;
 
-
     public Particle(Integer id, Double radius, Double vx, Double vy, Double mass) {
         this.id = id;
         this.radius = radius;
@@ -66,77 +65,85 @@ public class Particle implements Comparable<Particle> {
     public void setMass(Double mass) {
         this.mass = mass;
     }
-    
-    public double collidesX(){ //predice tiempo a colision con pared VERTICAL
-        if(vx > 0){
-            return (1 - radius - coordinates.getX())/vx;
-        }else if(vx < 0){
-            return (radius - coordinates.getX())/vx;
+
+    public double collidesX() { // predice tiempo a colision con pared VERTICAL
+        if (vx > 0) {
+            return (1 - radius - coordinates.getX()) / vx;
+        } else if (vx < 0) {
+            return (radius - coordinates.getX()) / vx;
         }
         return -1;
     }
 
-    public double collidesY(){ //predice tiempo a colision con pared HORIZONTAL
-        if(vy > 0){
-            return (1 - radius - coordinates.getY())/vy;
-        }else if(vy < 0){
-            return (radius - coordinates.getY())/vy;
+    public double collidesY() { // predice tiempo a colision con pared HORIZONTAL
+        if (vy > 0) {
+            return (1 - radius - coordinates.getY()) / vy;
+        } else if (vy < 0) {
+            return (radius - coordinates.getY()) / vy;
         }
         return -1;
     }
 
-    public double collides(Particle b){
-        double drx = b.coordinates.getX()-this.coordinates.getX();
-        double dry = b.coordinates.getY()-this.coordinates.getY();
+    public double collides(Particle b) {
+        double drx = b.coordinates.getX() - this.coordinates.getX();
+        double dry = b.coordinates.getY() - this.coordinates.getY();
         double dvx = b.getVx() - vx;
         double dvy = b.getVy() - vy;
-        
 
-        double distance = Math.pow(drx*dvx + dry*dvy,2) - ((dvx*dvx + dvy*dvy)*((drx*drx + dry*dry) - radius*radius));
-        
-        if((dvx*drx+dvy*dry)>=0)
+        double distance = Math.pow(drx * dvx + dry * dvy, 2)
+                - ((dvx * dvx + dvy * dvy) * ((drx * drx + dry * dry) - radius * radius));
+
+        if ((dvx * drx + dvy * dry) >= 0)
             return -1;
-        if(distance < 0)
+        if (distance < 0)
             return -1;
-        return -(((drx*dvx + dvy*dry) + Math.sqrt(distance))/(dvx*dvx+dvy*dvy));
+        return -(((drx * dvx + dvy * dry) + Math.sqrt(distance)) / (dvx * dvx + dvy * dvy));
     }
-    
-    public void bounceX(){
-        Double aux = -1*getVx();
+
+    public void bounceX() {
+        Double aux = -1 * getVx();
         setVx(aux);
-    }
-    
-    public void bounceY(){
-        Double aux = -1*getVy();
-        setVy(aux);
+        this.increaseCollision();
     }
 
-    public void bounce(Particle b){       
-        double drx = b.coordinates.getX()-this.coordinates.getX();
-        double dry = b.coordinates.getY()-this.coordinates.getY();
+    public void bounceY() {
+        Double aux = -1 * getVy();
+        setVy(aux);
+        this.increaseCollision();
+    }
+
+    public void increaseCollision() {
+        this.collisions++;
+    }
+
+    public void bounce(Particle b) {
+        double drx = b.coordinates.getX() - this.coordinates.getX();
+        double dry = b.coordinates.getY() - this.coordinates.getY();
         double dvx = b.getVx() - vx;
         double dvy = b.getVy() - vy;
-        
-        double j =  ((2*this.getMass()*b.getMass())*(dvx*drx+dvy*dry))/(radius*(this.getMass()+b.getMass()));
 
-        double jx = (j*(b.coordinates.getX()-this.coordinates.getX()))/this.radius;        
-        double jy = (j*(b.coordinates.getY()-this.coordinates.getY()))/this.radius;
+        double j = ((2 * this.getMass() * b.getMass()) * (dvx * drx + dvy * dry))
+                / (radius * (this.getMass() + b.getMass()));
 
-        double vxi = this.coordinates.getX() + jx/this.getMass();
-        double vyi = this.coordinates.getY() + jy/this.getMass();
+        double jx = (j * (b.coordinates.getX() - this.coordinates.getX())) / this.radius;
+        double jy = (j * (b.coordinates.getY() - this.coordinates.getY())) / this.radius;
 
-        double vxj = b.coordinates.getX() + jx/b.getMass();
-        double vyj = b.coordinates.getY() + jy/b.getMass();
-        
+        double vxi = this.coordinates.getX() + jx / this.getMass();
+        double vyi = this.coordinates.getY() + jy / this.getMass();
+
+        double vxj = b.coordinates.getX() + jx / b.getMass();
+        double vyj = b.coordinates.getY() + jy / b.getMass();
+        this.increaseCollision();
+        b.increaseCollision();
         this.setVx(vxi);
         this.setVy(vyi);
 
         b.setVx(vxj);
         b.setVy(vyj);
- 
+
     }
 
-    public int getCollisionCount(){
+    public int getCollisionCount() {
         return collisions;
     }
 
