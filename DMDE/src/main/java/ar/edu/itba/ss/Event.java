@@ -5,11 +5,15 @@ public class Event{
     private Particle a;
     private Particle b;
     private double t;
+    private int aCollisionCount;
+    private int bCollisionCount;
 
     public Event(double t, Particle a, Particle b){
         this.a = a;
         this.b = b;
         this.t = t;
+        this.aCollisionCount = a.getCollisionCount();
+        this.bCollisionCount = b.getCollisionCount();
     }
     
     //si ambas son null -> invalido
@@ -28,5 +32,8 @@ public class Event{
     public double getTime(){
         return t;
     }
-
+    
+    public boolean isInvalidated(int currentA, int currentB){
+        return currentA == aCollisionCount && currentB == bCollisionCount;
+    }
 }
