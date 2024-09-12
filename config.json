@@ -1,5 +1,6 @@
 {
     "N": 110,
     "mass": 1.0,
-    "velocity":4.2069
+    "velocity":4.2069,
+    "max_frames":200
 }

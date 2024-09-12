@@ -11,8 +11,12 @@ public class Event implements Comparable<Event> {
         this.a = a;
         this.b = b;
         this.t = t;
-        this.aCollisionCount = a.getCollisionCount();
-        this.bCollisionCount = b.getCollisionCount();
+        this.aCollisionCount = 0;
+        if (a != null)
+            aCollisionCount = a.getCollisionCount();
+        this.bCollisionCount = 0;
+        if (b != null)
+            bCollisionCount = b.getCollisionCount();
     }
 
     // si ambas son null -> invalido

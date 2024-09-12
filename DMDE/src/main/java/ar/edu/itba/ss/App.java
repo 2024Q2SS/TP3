@@ -27,7 +27,7 @@ public class App {
             e.printStackTrace();
         }
 
-        board = new Board(config.getMass(), config.getVelocity(), config.getN());
+        board = new Board(config.getMass(), config.getVelocity(), config.getN(), config.getMaxFrames());
     }
 
     public static void main(String[] args) {

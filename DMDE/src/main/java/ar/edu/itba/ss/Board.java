@@ -5,7 +5,13 @@ import java.util.TreeSet;
 
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class Board {
@@ -19,14 +25,17 @@ public class Board {
     private Double particleRadius = 0.001;
     private String configPath = "../config.json";
     private final static String rootDir = System.getProperty("user.dir");
+    private PrintWriter output;
     private Double mass;
     private Double velocity;
     private Integer N;
+    private Integer max_frames;
 
-    public Board(Double mass, Double velocity, Integer N) {
+    public Board(Double mass, Double velocity, Integer N, Integer max_frames) {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
+        this.max_frames = max_frames;
 
         System.out.println("initializing board");
         initialize();
@@ -76,12 +85,12 @@ public class Board {
             System.out.println("created particle " + i);
             particles.add(aux);
         }
-        recalculateCollisions();
+        recalculateCollisions(particles);
     }
 
-    public void recalculateCollisions() {
+    public void recalculateCollisions(Set<Particle> needRecalculation) {
         double t = -1;
-        for (Particle particle : particles) {
+        for (Particle particle : needRecalculation) {
             t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
             if (t > 0) {
                 Event aux = new Event(t, particle, null);
@@ -104,26 +113,51 @@ public class Board {
 
     }
 
+    public void saveBoardState() {
+
+    }
+
     public void updateBoard() {
-        while (!eventQueue.isEmpty()) {
-            Event e1 = eventQueue.remove();
-            Particle a = e1.getA();
-            Particle b = e1.getB();
-            // deberiamos usar optional para prevenir acceder si es null?
-            if (e1.isInvalidated(a, b))
-                break;
-            if (a != null) {
-                if (b != null) { // ambos son distintos de null
-                    a.bounce(b);
+        Set<Particle> toRecalc;
+        String path = Paths.get(rootDir, "output.csv").toString();
+        int count = 0;
+        try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
+            csvWriter.println("id,x,y");
+
+            while (!eventQueue.isEmpty() && count < max_frames) {
+                toRecalc = new HashSet<>();
+                Event e1 = eventQueue.remove();
+                Particle a = e1.getA();
+                Particle b = e1.getB();
+                // deberiamos usar optional para prevenir acceder si es null?
+                if (e1.isInvalidated(a, b)) {
+                    toRecalc.add(a);
+                    toRecalc.add(b);
                     break;
                 }
-                a.bounceX();
-                break;
+                if (a != null) {
+                    if (b != null) { // ambos son distintos de null
+                        a.bounce(b);
+                        toRecalc.add(a);
+                        toRecalc.add(b);
+                        break;
+                    }
+                    a.bounceX();
+                    toRecalc.add(a);
+                    break;
+                }
+                if (b != null) {
+                    b.bounceY();
+                    toRecalc.add(b);
+                }
+                recalculateCollisions(toRecalc); // recalculamos solo para las que estuvieron en colisiones
+                for (Particle p : particles) {
+                    csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
+                }
+                count++;
             }
-            if (b != null) {
-                b.bounceY();
-            }
-            recalculateCollisions();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
