@@ -1,5 +1,5 @@
 {
-    "N": 1,
+    "N": 20,
     "mass": 1.0,
     "velocity":1.0,
     "max_frames":200

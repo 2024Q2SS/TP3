@@ -101,14 +101,21 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void bounceX() {
-        Double aux = -1 * getVx();
+        Double aux = -1 * this.getVx();
         this.setVx(aux);
         this.increaseCollision();
+        if (Math.sqrt(Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
+            System.out.println(
+                    "se rompio la velocidad por un bounceX \nthis\nvx:" + this.getVx() + "\nvy: " + this.getVy());
+
     }
 
     public void bounceY() {
-        Double aux = -1 * getVy();
+        Double aux = -1 * this.getVy();
         this.setVy(aux);
+        if (Math.sqrt(Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
+            System.out.println(
+                    "se rompio la velocidad por un bounceY \nthis\nvx:" + this.getVx() + "\nvy: " + this.getVy());
         this.increaseCollision();
     }
 
@@ -148,7 +155,9 @@ public class Particle implements Comparable<Particle> {
 
         b.setVx(vxj);
         b.setVy(vyj);
-
+        if (Math.sqrt(Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
+            System.out.println("se rompio la velocidad por un bounce entre particulas\n this\nvx:" + this.getVx()
+                    + "\nvy: " + this.getVy() + "\nother\nvx:" + b.getVx() + "\nvy:" + b.getVy() + "\n");
     }
 
     public int getCollisionCount() {

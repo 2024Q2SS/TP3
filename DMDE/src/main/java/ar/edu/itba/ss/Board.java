@@ -79,7 +79,9 @@ public class Board {
     public void initialize() {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
-            Double vx = Math.random();
+            Integer neg = Math.random() > 0.5 ? -1 : 1;
+            Double vx = Math.random() * neg;
+            neg = Math.random() > 0.5 ? -1 : 1;
             Double vy = Math.sqrt(1 - Math.pow(vx, 2));
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
@@ -89,7 +91,6 @@ public class Board {
     }
 
     public void recalculateCollisions(Set<Particle> needRecalculation) {
-
         double t = -1;
         for (Particle particle : needRecalculation) {
             t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
@@ -117,10 +118,6 @@ public class Board {
 
     }
 
-    public void saveBoardState() {
-
-    }
-
     public void updateParticles(double time) {
         for (Particle p : particles) {
             p.updatePosition(time);
@@ -128,7 +125,7 @@ public class Board {
     }
 
     public void updateBoard() {
-        Set<Particle> toRecalc = new HashSet<>();
+        // Set<Particle> toRecalc = new HashSet<>();
         String path = Paths.get(rootDir, "output.csv").toString();
         int count = 0;
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
@@ -142,31 +139,33 @@ public class Board {
                 Particle a = e1.getA();
                 Particle b = e1.getB();
                 if (e1.isInvalidated(a, b)) {
-                    if (a != null) {
-                        toRecalc.add(a);
-                    }
-                    if (b != null) {
-
-                        toRecalc.add(b);
-                    }
+                    /*
+                     * if (a != null) {
+                     * toRecalc.add(a);
+                     * }
+                     * if (b != null) {
+                     * 
+                     * toRecalc.add(b);
+                     * }
+                     */
                     invalid = true;
                 } else {
                     if (a != null) {
                         if (b != null) { // ambos son distintos de null
                             updateParticles(e1.getTime());
                             a.bounce(b);
-                            toRecalc.add(a);
-                            toRecalc.add(b);
+                            // toRecalc.add(a);
+                            // toRecalc.add(b);
 
                         } else {
                             updateParticles(e1.getTime());
                             a.bounceX();
-                            toRecalc.add(a);
+                            // toRecalc.add(a);
                         }
                     } else if (b != null) {
                         updateParticles(e1.getTime());
                         b.bounceY();
-                        toRecalc.add(b);
+                        // toRecalc.add(b);
                     }
 
                 }
@@ -177,8 +176,8 @@ public class Board {
                     }
 
                 }
-                recalculateCollisions(toRecalc); // recalculamos solo para las que estuvieron en colisiones
-                toRecalc.clear();
+                recalculateCollisions(particles); // recalculamos solo para las que estuvieron en colisiones
+                // toRecalc.clear();
                 count++;
                 invalid = false;
             }

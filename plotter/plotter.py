@@ -70,5 +70,9 @@ plt.xlabel("X Position (meters)")
 plt.ylabel("Y Position (meters)")
 plt.title("Particle Distribution Animation")
 
-# Show the plot and animation
-plt.show()
+# Save animation to file (GIF and MP4)
+ani.save("particle_simulation.gif", writer="pillow", fps=30)
+ani.save("particle_simulation.mp4", writer="ffmpeg", fps=30)
+
+# Show the plot (optional if you just want to save the file)
+# plt.show()
