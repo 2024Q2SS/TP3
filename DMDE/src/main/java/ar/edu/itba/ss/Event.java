@@ -37,15 +37,11 @@ public class Event implements Comparable<Event> {
     }
 
     public boolean isInvalidated(Particle a, Particle b) {
-        int currentA = 0;
-        int currentB = 0;
-        if (a != null) {
-            currentA = a.getCollisionCount();
-        }
-        if (b != null) {
-            currentB = b.getCollisionCount();
-        }
-        return currentA == aCollisionCount && currentB == bCollisionCount;
+
+        return a != null
+                ? (b != null ? (a.getCollisionCount() != aCollisionCount || b.getCollisionCount() != bCollisionCount)
+                        : (a.getCollisionCount() != aCollisionCount))
+                : (b.getCollisionCount() != bCollisionCount);
     }
 
     @Override

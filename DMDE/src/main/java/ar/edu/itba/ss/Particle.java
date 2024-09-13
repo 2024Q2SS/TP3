@@ -68,8 +68,8 @@ public class Particle implements Comparable<Particle> {
 
     public double collidesX() { // predice tiempo a colision con pared VERTICAL
         if (vx > 0) {
-            return (1 - radius - coordinates.getX()) / vx;
-        } else if (vx < 0) {
+            return (0.1 - radius - coordinates.getX()) / vx;
+        } else if (vy < 0) {
             return (radius - coordinates.getX()) / vx;
         }
         return -1;
@@ -77,7 +77,7 @@ public class Particle implements Comparable<Particle> {
 
     public double collidesY() { // predice tiempo a colision con pared HORIZONTAL
         if (vy > 0) {
-            return (1 - radius - coordinates.getY()) / vy;
+            return (0.1 - radius - coordinates.getY()) / vy;
         } else if (vy < 0) {
             return (radius - coordinates.getY()) / vy;
         }
@@ -102,14 +102,22 @@ public class Particle implements Comparable<Particle> {
 
     public void bounceX() {
         Double aux = -1 * getVx();
-        setVx(aux);
+        this.setVx(aux);
         this.increaseCollision();
     }
 
     public void bounceY() {
         Double aux = -1 * getVy();
-        setVy(aux);
+        this.setVy(aux);
         this.increaseCollision();
+    }
+
+    public void updatePosition(double time) {
+        Double x = coordinates.getX() + vx * time;
+        Double y = coordinates.getY() + vy * time;
+        this.coordinates.setX(x);
+        this.coordinates.setY(y);
+
     }
 
     public void increaseCollision() {

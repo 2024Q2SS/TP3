@@ -89,25 +89,29 @@ public class Board {
     }
 
     public void recalculateCollisions(Set<Particle> needRecalculation) {
+
         double t = -1;
         for (Particle particle : needRecalculation) {
             t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
             if (t > 0) {
                 Event aux = new Event(t, particle, null);
                 eventQueue.add(aux);
-            } else if (t < 0) { // si no va a colisionar con paredes verticales, entonces me fijo contra
-                                // horizontales
-                t = particle.collidesY();
-                if (t > 0) {
-                    Event aux = new Event(t, null, particle);
-                    eventQueue.add(aux);
-                }
+            } // si no va a colisionar con paredes verticales, entonces me fijo contra
+              // horizontales
+            t = particle.collidesY();
+            if (t > 0) {
+                Event aux = new Event(t, null, particle);
+                eventQueue.add(aux);
             }
             for (Particle other : particles) {
-                t = particle.collides(other);
 
-                Event aux = new Event(t, particle, other);
-                eventQueue.add(aux);
+                if (other.getId() == particle.getId())
+                    continue;
+                t = particle.collides(other);
+                if (t > 0) {
+                    Event aux = new Event(t, particle, other);
+                    eventQueue.add(aux);
+                }
             }
         }
 
@@ -117,44 +121,66 @@ public class Board {
 
     }
 
+    public void updateParticles(double time) {
+        for (Particle p : particles) {
+            p.updatePosition(time);
+        }
+    }
+
     public void updateBoard() {
-        Set<Particle> toRecalc;
+        Set<Particle> toRecalc = new HashSet<>();
         String path = Paths.get(rootDir, "output.csv").toString();
         int count = 0;
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
             csvWriter.println("id,x,y");
-
+            Boolean invalid = false;
+            for (Particle p : particles) {
+                csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
+            }
             while (!eventQueue.isEmpty() && count < max_frames) {
-                toRecalc = new HashSet<>();
                 Event e1 = eventQueue.remove();
                 Particle a = e1.getA();
                 Particle b = e1.getB();
-                // deberiamos usar optional para prevenir acceder si es null?
                 if (e1.isInvalidated(a, b)) {
-                    toRecalc.add(a);
-                    toRecalc.add(b);
-                    break;
-                }
-                if (a != null) {
-                    if (b != null) { // ambos son distintos de null
-                        a.bounce(b);
+                    if (a != null) {
                         toRecalc.add(a);
-                        toRecalc.add(b);
-                        break;
                     }
-                    a.bounceX();
-                    toRecalc.add(a);
-                    break;
+                    if (b != null) {
+
+                        toRecalc.add(b);
+                    }
+                    invalid = true;
+                } else {
+                    if (a != null) {
+                        if (b != null) { // ambos son distintos de null
+                            updateParticles(e1.getTime());
+                            a.bounce(b);
+                            toRecalc.add(a);
+                            toRecalc.add(b);
+
+                        } else {
+                            updateParticles(e1.getTime());
+                            a.bounceX();
+                            toRecalc.add(a);
+                        }
+                    } else if (b != null) {
+                        updateParticles(e1.getTime());
+                        b.bounceY();
+                        toRecalc.add(b);
+                    }
+
                 }
-                if (b != null) {
-                    b.bounceY();
-                    toRecalc.add(b);
+                if (!invalid) {
+                    for (Particle p : particles) {
+                        csvWriter
+                                .println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
+                    }
+
                 }
                 recalculateCollisions(toRecalc); // recalculamos solo para las que estuvieron en colisiones
-                for (Particle p : particles) {
-                    csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
-                }
+                toRecalc.clear();
                 count++;
+                invalid = false;
             }
         } catch (IOException e) {
             e.printStackTrace();
