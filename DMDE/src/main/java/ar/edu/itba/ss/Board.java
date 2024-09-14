@@ -79,10 +79,13 @@ public class Board {
     public void initialize() {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
-            Integer neg = Math.random() > 0.5 ? -1 : 1;
-            Double vx = Math.random() * neg;
-            neg = Math.random() > 0.5 ? -1 : 1;
-            Double vy = Math.sqrt(1 - Math.pow(vx, 2));
+            Double vx = 0.0, vy = 0.0;
+            while ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1) {
+                Integer neg = Math.random() > 0.5 ? -1 : 1;
+                vx = Math.random() * neg;
+                neg = Math.random() > 0.5 ? -1 : 1;
+                vy = Math.sqrt(1 - Math.pow(vx, 2));
+            }
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
             particles.add(aux);

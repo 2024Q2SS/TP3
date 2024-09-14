@@ -124,8 +124,8 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void updatePosition(double time) {
-        Double x = coordinates.getX() + this.getVx() * time;
-        Double y = coordinates.getY() + this.getVy() * time;
+        Double x = coordinates.getX() + vx * time;
+        Double y = coordinates.getY() + vy * time;
         this.coordinates.setX(x);
         this.coordinates.setY(y);
 
@@ -136,8 +136,6 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void bounce(Particle b) {
-        System.out.println("Bounce\nthis\nvx:" + this.getVx()
-                + "\nvy: " + this.getVy() + "\nother\nvx:" + b.getVx() + "\nvy:" + b.getVy() + "\n");
         double drx = b.coordinates.getX() - this.coordinates.getX();
         double dry = b.coordinates.getY() - this.coordinates.getY();
         double dvx = b.getVx() - this.getVx();
@@ -149,11 +147,11 @@ public class Particle implements Comparable<Particle> {
         double jx = (j * (b.coordinates.getX() - this.coordinates.getX())) / this.radius;
         double jy = (j * (b.coordinates.getY() - this.coordinates.getY())) / this.radius;
 
-        double vxi = this.getVx() + jx / this.getMass();
-        double vyi = this.getVy() + jy / this.getMass();
+        double vxi = this.coordinates.getX() + jx / this.getMass();
+        double vyi = this.coordinates.getY() + jy / this.getMass();
 
-        double vxj = b.getVx() - jx / b.getMass();
-        double vyj = b.getVy() - jy / b.getMass();
+        double vxj = b.coordinates.getX() + jx / b.getMass();
+        double vyj = b.coordinates.getY() + jy / b.getMass();
         this.increaseCollision();
         b.increaseCollision();
         this.setVx(vxi);
@@ -161,7 +159,6 @@ public class Particle implements Comparable<Particle> {
 
         b.setVx(vxj);
         b.setVy(vyj);
-
         if (Math.sqrt(Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
             System.out.println("se rompio la velocidad por un bounce entre particulas\n this\nvx:" + this.getVx()
                     + "\nvy: " + this.getVy() + "\nother\nvx:" + b.getVx() + "\nvy:" + b.getVy() + "\n");
