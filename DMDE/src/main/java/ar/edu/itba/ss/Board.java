@@ -30,12 +30,17 @@ public class Board {
     private Double velocity;
     private Integer N;
     private Integer max_frames;
+    private Double obstacle_mass;
+    private Boolean movable_obstacle;
 
-    public Board(Double mass, Double velocity, Integer N, Integer max_frames) {
+    public Board(Double mass, Double velocity, Integer N, Integer max_frames, Boolean movable_obstacle,
+            Double obstacle_mass) {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
         this.max_frames = max_frames;
+        this.obstacle_mass = obstacle_mass;
+        this.movable_obstacle = movable_obstacle;
 
         System.out.println("initializing board");
         initialize();
@@ -90,12 +95,21 @@ public class Board {
             System.out.println("created particle " + i);
             particles.add(aux);
         }
+        /*
+         * Particle obstacle = new Particle(N, new Coordinates(length / 2, length / 2),
+         * obstacleRadius,
+         * Double.valueOf(0.0), Double.valueOf(0.0),
+         * obstacle_mass, movable_obstacle);
+         * particles.add(obstacle);
+         */
         recalculateCollisions(particles);
     }
 
     public void recalculateCollisions(Set<Particle> needRecalculation) {
         double t = -1;
         for (Particle particle : needRecalculation) {
+            if (particle.isObstacle())
+                continue;
             t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
             if (t > 0) {
                 Event aux = new Event(t, particle, null);
@@ -123,12 +137,14 @@ public class Board {
 
     public void updateParticles(double time) {
         for (Particle p : particles) {
+            if (p.isObstacle())
+                continue;
             p.updatePosition(time);
         }
     }
 
     public void updateBoard() {
-        // Set<Particle> toRecalc = new HashSet<>();
+        Set<Particle> toRecalc = new HashSet<>();
         String path = Paths.get(rootDir, "output.csv").toString();
         int count = 0;
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
@@ -138,7 +154,7 @@ public class Board {
                 csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
             }
             while (!eventQueue.isEmpty() && count < max_frames) {
-                Event e1 = eventQueue.remove();
+                Event e1 = eventQueue.poll();
                 Particle a = e1.getA();
                 Particle b = e1.getB();
                 if (e1.isInvalidated(a, b)) {
@@ -147,7 +163,6 @@ public class Board {
                      * toRecalc.add(a);
                      * }
                      * if (b != null) {
-                     * 
                      * toRecalc.add(b);
                      * }
                      */

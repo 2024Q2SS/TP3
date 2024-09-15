@@ -2,5 +2,7 @@
     "N": 10,
     "mass": 1.0,
     "velocity":1.0,
-    "max_frames":10000
+    "max_frames":10000,
+    "movable_obs":true,
+    "obstacle_mass":1
 }
