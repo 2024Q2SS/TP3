@@ -10,12 +10,14 @@ public class Config {
     private Integer max_frames;
     private Boolean movable_obs;
     private Double obstacle_mass;
+    private Double time_step;
 
-    public Config(Double mass, Double velocity, Integer N, Integer max_frames, Boolean movable_obs,
+    public Config(Double mass, Double velocity, Integer N, Double time_step, Integer max_frames, Boolean movable_obs,
             Double obstacle_mass) {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
+        this.time_step = time_step;
         this.max_frames = max_frames;
         this.movable_obs = movable_obs;
         this.obstacle_mass = obstacle_mass;
@@ -27,6 +29,7 @@ public class Config {
                 "N: " + N + ",\n" +
                 "mass: " + mass + ",\n" +
                 "velocity: " + velocity + ",\n" +
+                "time_step:" + time_step + ",\n" +
                 "max_frames: " + max_frames + ",\n" +
                 "movable_obs: " + movable_obs + ",\n" +
                 "obstacle_mass: " + obstacle_mass + ",\n" +
@@ -55,5 +58,9 @@ public class Config {
 
     public Double getObstacleMass() {
         return obstacle_mass;
+    }
+
+    public Double getTimeStep() {
+        return time_step;
     }
 }

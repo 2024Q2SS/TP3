@@ -28,7 +28,7 @@ public class App {
         }
 
         board = new Board(config.getMass(), config.getVelocity(), config.getN(), config.getMaxFrames(),
-                config.getMovable(), config.getObstacleMass());
+                config.getMovable(), config.getObstacleMass(), config.getTimeStep());
     }
 
     public static void main(String[] args) {

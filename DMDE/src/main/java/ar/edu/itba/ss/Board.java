@@ -24,17 +24,18 @@ public class Board {
     private Integer max_frames;
     private Double obstacle_mass;
     private Boolean movable_obstacle;
+    private Double time_step;
     private Particle obstacle;
 
     public Board(Double mass, Double velocity, Integer N, Integer max_frames, Boolean movable_obstacle,
-            Double obstacle_mass) {
+            Double obstacle_mass, Double time_step) {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
         this.max_frames = max_frames;
         this.obstacle_mass = obstacle_mass;
         this.movable_obstacle = movable_obstacle;
-
+        this.time_step = time_step;
         System.out.println("initializing board");
         initialize();
         System.out.println("finished initializing board");
@@ -137,6 +138,7 @@ public class Board {
     }
 
     public void updateBoard() {
+        Double time = 0.0;
         String path = Paths.get(rootDir, "output.csv").toString();
         int count = 0;
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
@@ -154,6 +156,7 @@ public class Board {
                 if (e1.isInvalidated(a, b)) {
                     invalid = true;
                 } else {
+                    time += e1.getTime();
                     if (a != null) {
                         if (b != null) { // ambos son distintos de null
                             updateParticles(e1.getTime());
@@ -169,20 +172,21 @@ public class Board {
                     }
 
                 }
-                if (!invalid) {
+                if (!invalid && count * time_step <= time) {
                     for (Particle p : particles) {
                         if (p.isObstacle() && !p.isMovable())
                             continue;
                         csvWriter
                                 .println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
                     }
-
                     count++;
                 }
                 recalculateCollisions(particles); // recalculamos solo para las que estuvieron en colisiones
                 invalid = false;
             }
-        } catch (IOException e) {
+        } catch (
+
+        IOException e) {
             e.printStackTrace();
         }
     }
