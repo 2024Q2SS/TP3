@@ -115,12 +115,8 @@ public class Particle implements Comparable<Particle> {
     public double collides(Particle b) { // cambiarlo a object pero que sea particle o obstacle?
         double drx = b.getCoordinates().getX() - this.getCoordinates().getX();
         double dry = b.getCoordinates().getY() - this.getCoordinates().getY();
-        double dvx = this.getVx();
-        double dvy = this.getVy();
-        if (!b.isObstacle()) {
-            dvx = b.getVx() - this.getVx();
-            dvy = b.getVy() - this.getVy();
-        }
+        double dvx = b.getVx() - this.getVx();
+        double dvy = b.getVy() - this.getVy();
 
         double sigma2 = Math.pow(this.getRadius() + b.getRadius(), 2);
 
@@ -140,16 +136,16 @@ public class Particle implements Comparable<Particle> {
     public void bounceX() {
         Double aux = -1 * this.getVx();
         this.setVx(aux);
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
-            System.out.println("se rompio con bounceY");
+        // if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
+        // System.out.println("se rompio con bounceY");
         this.increaseCollision();
     }
 
     public void bounceY() {
         Double aux = -1 * this.getVy();
         this.setVy(aux);
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
-            System.out.println("se rompio con bounceX");
+        // if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
+        // System.out.println("se rompio con bounceX");
         this.increaseCollision();
     }
 
@@ -168,38 +164,42 @@ public class Particle implements Comparable<Particle> {
     public void bounce(Particle b) {
         double drx = b.getCoordinates().getX() - this.getCoordinates().getX();
         double dry = b.getCoordinates().getY() - this.getCoordinates().getY();
-        double dvx = this.getVx();
-        double dvy = this.getVy();
-        if (!b.isObstacle()) {
-            dvx = b.getVx() - this.getVx();
-            dvy = b.getVy() - this.getVy();
-        }
+        double dvx = b.getVx() - this.getVx();
+        double dvy = b.getVy() - this.getVy();
 
         double sigma2 = Math.pow(this.getRadius() + b.getRadius(), 2);
         double dr_d_dv = (drx * dvx) + (dry * dvy);
 
-        double j = ((2 * this.getMass() * b.getMass()) * dr_d_dv)
-                / (Math.sqrt(sigma2) * (this.getMass() + b.getMass()));
+        double j;
+        if (b.isObstacle()) {
+            // Si B es un obstáculo, consideramos que tiene masa infinita, por lo que solo
+            // this cambia su velocidad
+            j = (2 * this.getMass() * dr_d_dv) / (Math.sqrt(sigma2));
+        } else {
+            // Colisión entre dos partículas movibles
+            j = (2 * this.getMass() * b.getMass() * dr_d_dv)
+                    / (Math.sqrt(sigma2) * (this.getMass() + b.getMass()));
+        }
 
         double jx = (j * drx) / Math.sqrt(sigma2);
         double jy = (j * dry) / Math.sqrt(sigma2);
 
         double vxi = this.getVx() + (jx / this.getMass());
         double vyi = this.getVy() + (jy / this.getMass());
-
-        double vxj = b.getVx() - (jx / b.getMass());
-        double vyj = b.getVy() - (jy / b.getMass());
         this.increaseCollision();
-        b.increaseCollision();
         this.setVx(vxi);
         this.setVy(vyi);
 
-        b.setVx(vxj);
-        b.setVy(vyj);
-
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
-            System.out.println("se rompio con bounce");
-
+        if (!b.isObstacle()) {
+            double vxj = b.getVx() - (jx / b.getMass());
+            double vyj = b.getVy() - (jy / b.getMass());
+            b.increaseCollision();
+            b.setVx(vxj);
+            b.setVy(vyj);
+        }
+        // if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
+        // System.out.println("se rompio con bounce");
+        //
     }
 
     public int getCollisionCount() {

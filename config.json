@@ -1,8 +1,8 @@
 {
-    "N": 10,
-    "mass": 1.0,
-    "velocity":1.0,
-    "max_frames":10000,
-    "movable_obs":true,
-    "obstacle_mass":1
+  "N": 100,
+  "mass": 1.0,
+  "velocity": 1.0,
+  "max_frames": 1000,
+  "movable_obs": false,
+  "obstacle_mass": 1
 }
