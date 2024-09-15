@@ -65,8 +65,8 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void setVx(Double vx) {
-        if (obstacle) {
-            if (movable) {
+        if (this.isObstacle()) {
+            if (this.isMovable()) {
                 this.vx = vx;
             }
         } else
@@ -78,8 +78,8 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void setVy(Double vy) {
-        if (obstacle) {
-            if (movable) {
+        if (this.isObstacle()) {
+            if (this.isMovable()) {
                 this.vy = vy;
             }
         } else
@@ -122,9 +122,6 @@ public class Particle implements Comparable<Particle> {
             dvy = b.getVy() - this.getVy();
         }
 
-        // double sigma2 = Math.pow(this.getCoordinates().getX() -
-        // b.getCoordinates().getX(), 2)
-        // + Math.pow(this.getCoordinates().getY() - b.getCoordinates().getY(), 2);
         double sigma2 = Math.pow(this.getRadius() + b.getRadius(), 2);
 
         double dr_d_dr = (drx * drx) + (dry * dry);
@@ -143,7 +140,7 @@ public class Particle implements Comparable<Particle> {
     public void bounceX() {
         Double aux = -1 * this.getVx();
         this.setVx(aux);
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
             System.out.println("se rompio con bounceY");
         this.increaseCollision();
     }
@@ -151,7 +148,7 @@ public class Particle implements Comparable<Particle> {
     public void bounceY() {
         Double aux = -1 * this.getVy();
         this.setVy(aux);
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
             System.out.println("se rompio con bounceX");
         this.increaseCollision();
     }
@@ -176,11 +173,9 @@ public class Particle implements Comparable<Particle> {
         if (!b.isObstacle()) {
             dvx = b.getVx() - this.getVx();
             dvy = b.getVy() - this.getVy();
-        } // double sigma2 = Math.pow(this.getCoordinates().getX() -
-          // b.getCoordinates().getX(), 2)
-          // + Math.pow(this.getCoordinates().getY() - b.getCoordinates().getY(), 2);
-        double sigma2 = Math.pow(this.getRadius() + b.getRadius(), 2);
+        }
 
+        double sigma2 = Math.pow(this.getRadius() + b.getRadius(), 2);
         double dr_d_dv = (drx * dvx) + (dry * dvy);
 
         double j = ((2 * this.getMass() * b.getMass()) * dr_d_dv)
@@ -202,7 +197,7 @@ public class Particle implements Comparable<Particle> {
         b.setVx(vxj);
         b.setVy(vyj);
 
-        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) - 1 <= 0.000001)
             System.out.println("se rompio con bounce");
 
     }
@@ -213,6 +208,10 @@ public class Particle implements Comparable<Particle> {
 
     public boolean isObstacle() {
         return obstacle;
+    }
+
+    public boolean isMovable() {
+        return movable;
     }
 
     @Override

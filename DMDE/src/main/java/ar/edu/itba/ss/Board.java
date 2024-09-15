@@ -18,20 +18,20 @@ public class Board {
 
     // private Map<Coordinates, Cell> cellMap = new HashMap<>();
     private PriorityQueue<Event> eventQueue = new PriorityQueue<>();
-    private Double interactionRadius;
     private Set<Particle> particles = new TreeSet<>();
+    private Set<Particle> particlesAndObs = new TreeSet<>();
     private Double length = 0.1;
     private Double obstacleRadius = 0.005;
     private Double particleRadius = 0.001;
     private String configPath = "../config.json";
     private final static String rootDir = System.getProperty("user.dir");
-    private PrintWriter output;
     private Double mass;
     private Double velocity;
     private Integer N;
     private Integer max_frames;
     private Double obstacle_mass;
     private Boolean movable_obstacle;
+    private Particle obstacle;
 
     public Board(Double mass, Double velocity, Integer N, Integer max_frames, Boolean movable_obstacle,
             Double obstacle_mass) {
@@ -95,21 +95,19 @@ public class Board {
             System.out.println("created particle " + i);
             particles.add(aux);
         }
-        /*
-         * Particle obstacle = new Particle(N, new Coordinates(length / 2, length / 2),
-         * obstacleRadius,
-         * Double.valueOf(0.0), Double.valueOf(0.0),
-         * obstacle_mass, movable_obstacle);
-         * particles.add(obstacle);
-         */
+
+        obstacle = new Particle(N, new Coordinates(length / 2, length / 2),
+                obstacleRadius,
+                Double.valueOf(0.0), Double.valueOf(0.0),
+                obstacle_mass, movable_obstacle);
+        particlesAndObs = particles;
+        particlesAndObs.add(obstacle);
         recalculateCollisions(particles);
     }
 
     public void recalculateCollisions(Set<Particle> needRecalculation) {
         double t = -1;
         for (Particle particle : needRecalculation) {
-            if (particle.isObstacle())
-                continue;
             t = particle.collidesX(); // si no hay colision con una pared vertical => devuelve -1
             if (t > 0) {
                 Event aux = new Event(t, particle, null);
@@ -121,7 +119,7 @@ public class Board {
                 Event aux = new Event(t, null, particle);
                 eventQueue.add(aux);
             }
-            for (Particle other : particles) {
+            for (Particle other : particlesAndObs) {
 
                 if (other.getId() == particle.getId())
                     continue;
@@ -137,14 +135,12 @@ public class Board {
 
     public void updateParticles(double time) {
         for (Particle p : particles) {
-            if (p.isObstacle())
-                continue;
             p.updatePosition(time);
         }
     }
 
     public void updateBoard() {
-        Set<Particle> toRecalc = new HashSet<>();
+        // Set<Particle> toRecalc = new HashSet<>();
         String path = Paths.get(rootDir, "output.csv").toString();
         int count = 0;
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
