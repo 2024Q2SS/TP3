@@ -1,6 +1,6 @@
 {
-    "N": 20,
+    "N": 10,
     "mass": 1.0,
     "velocity":1.0,
-    "max_frames":200
+    "max_frames":10000
 }

@@ -67,31 +67,38 @@ public class Particle implements Comparable<Particle> {
     }
 
     public double collidesX() { // predice tiempo a colision con pared VERTICAL
-        if (vx > 0) {
-            return (0.1 - radius - coordinates.getX()) / vx;
-        } else if (vy < 0) {
-            return (radius - coordinates.getX()) / vx;
+        if (this.getVx() > 0) {
+            return (0.1 - this.getRadius() - this.getCoordinates().getX()) / this.getVx();
+        } else if (this.getVx() < 0) {
+            return (this.getRadius() - this.getCoordinates().getX()) / this.getVx();
         }
         return -1;
     }
 
     public double collidesY() { // predice tiempo a colision con pared HORIZONTAL
-        if (vy > 0) {
-            return (0.1 - radius - coordinates.getY()) / vy;
-        } else if (vy < 0) {
-            return (radius - coordinates.getY()) / vy;
+        if (this.getVy() > 0) {
+            return (0.1 - this.getRadius() - this.getCoordinates().getY()) / this.getVy();
+        } else if (this.getVy() < 0) {
+            return (this.getRadius() - this.getCoordinates().getY()) / this.getVy();
         }
         return -1;
     }
 
     public double collides(Particle b) {
-        double drx = b.coordinates.getX() - this.coordinates.getX();
-        double dry = b.coordinates.getY() - this.coordinates.getY();
-        double dvx = b.getVx() - vx;
-        double dvy = b.getVy() - vy;
+        double drx = b.getCoordinates().getX() - this.getCoordinates().getX();
+        double dry = b.getCoordinates().getY() - this.getCoordinates().getY();
+        double dvx = b.getVx() - this.getVx();
+        double dvy = b.getVy() - this.getVy();
+        double sigma2 = Math.pow(this.getCoordinates().getX() - b.getCoordinates().getX(), 2)
+                + Math.pow(this.getCoordinates().getY() - b.getCoordinates().getY(), 2);
 
         double distance = Math.pow(drx * dvx + dry * dvy, 2)
-                - ((dvx * dvx + dvy * dvy) * ((drx * drx + dry * dry) - radius * radius));
+                - ((dvx * dvx + dvy * dvy) * ((drx * drx + dry * dry) - sigma2)); // Check
+                                                                                  // collision
+                                                                                  // based
+                                                                                  // on
+                                                                                  // radii
+                                                                                  // sum
 
         if ((dvx * drx + dvy * dry) >= 0)
             return -1;
@@ -101,33 +108,26 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void bounceX() {
-        Double fault = this.getVx();
         Double aux = -1 * this.getVx();
         this.setVx(aux);
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+            System.out.println("se rompio con bounceY");
         this.increaseCollision();
-        if ((Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
-            System.out.println(
-                    "previo al bounce vx: " + fault + "\nse rompio la velocidad por un bounceX \nthis\nvx:"
-                            + this.getVx() + "\nvy: " + this.getVy());
-
     }
 
     public void bounceY() {
-        Double fault = this.getVy();
         Double aux = -1 * this.getVy();
         this.setVy(aux);
-        if ((Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
-            System.out.println(
-                    "previo al bounce vx: " + fault + "\nse rompio la velocidad por un bounceY \nthis\nvx:"
-                            + this.getVx() + "\nvy: " + this.getVy());
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+            System.out.println("se rompio con bounceX");
         this.increaseCollision();
     }
 
     public void updatePosition(double time) {
-        Double x = coordinates.getX() + vx * time;
-        Double y = coordinates.getY() + vy * time;
-        this.coordinates.setX(x);
-        this.coordinates.setY(y);
+        Double x = this.getCoordinates().getX() + this.getVx() * time;
+        Double y = this.getCoordinates().getY() + this.getVy() * time;
+        this.getCoordinates().setX(x);
+        this.getCoordinates().setY(y);
 
     }
 
@@ -136,22 +136,24 @@ public class Particle implements Comparable<Particle> {
     }
 
     public void bounce(Particle b) {
-        double drx = b.coordinates.getX() - this.coordinates.getX();
-        double dry = b.coordinates.getY() - this.coordinates.getY();
+        double drx = b.getCoordinates().getX() - this.coordinates.getX();
+        double dry = b.getCoordinates().getY() - this.coordinates.getY();
         double dvx = b.getVx() - this.getVx();
         double dvy = b.getVy() - this.getVy();
+        double sigma2 = Math.pow(this.getCoordinates().getX() - b.getCoordinates().getX(), 2)
+                + Math.pow(this.getCoordinates().getY() - b.getCoordinates().getY(), 2);
 
         double j = ((2 * this.getMass() * b.getMass()) * (dvx * drx + dvy * dry))
-                / (radius * (this.getMass() + b.getMass()));
+                / ((drx * drx + dry * dry) * (this.getMass() + b.getMass()));
 
-        double jx = (j * (b.coordinates.getX() - this.coordinates.getX())) / this.radius;
-        double jy = (j * (b.coordinates.getY() - this.coordinates.getY())) / this.radius;
+        double jx = (j * drx) / Math.sqrt(sigma2);
+        double jy = (j * dry) / Math.sqrt(sigma2);
 
-        double vxi = this.coordinates.getX() + jx / this.getMass();
-        double vyi = this.coordinates.getY() + jy / this.getMass();
+        double vxi = this.getVx() + jx / this.getMass();
+        double vyi = this.getVy() + jy / this.getMass();
 
-        double vxj = b.coordinates.getX() + jx / b.getMass();
-        double vyj = b.coordinates.getY() + jy / b.getMass();
+        double vxj = b.getVx() - jx / b.getMass();
+        double vyj = b.getVy() - jy / b.getMass();
         this.increaseCollision();
         b.increaseCollision();
         this.setVx(vxi);
@@ -159,9 +161,10 @@ public class Particle implements Comparable<Particle> {
 
         b.setVx(vxj);
         b.setVy(vyj);
-        if (Math.sqrt(Math.pow(this.getVx(), 2) + Math.pow(this.getVy(), 2)) != 1)
-            System.out.println("se rompio la velocidad por un bounce entre particulas\n this\nvx:" + this.getVx()
-                    + "\nvy: " + this.getVy() + "\nother\nvx:" + b.getVx() + "\nvy:" + b.getVy() + "\n");
+
+        if ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1)
+            System.out.println("se rompio con bounce");
+
     }
 
     public int getCollisionCount() {

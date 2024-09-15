@@ -6,6 +6,7 @@
 *.csv
 *.json
 *.nix
+*.mp4
 
 # Log file
 *.log
