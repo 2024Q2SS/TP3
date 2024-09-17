@@ -140,13 +140,13 @@ public class Board {
     public void updateBoard() {
         Double time = 0.0;
         String path = Paths.get(rootDir, "output.csv").toString();
-        String path_events = Paths.get(rootDir, "events.csv").toString();
+        String path_events = Paths.get(rootDir, "/events/events.csv").toString();
         int count = 0;
         String eventType = "";
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
             try (PrintWriter eventWriter = new PrintWriter(new FileWriter(path_events))) {
                 csvWriter.println("id,x,y");
-                eventWriter.println("frame,eventType,a_x,a_y,a_vx,a_vy,b_x,b_y,b_vx,b_vy");
+                eventWriter.println("frame,time,eventType,a_x,a_y,a_vx,a_vy,b_x,b_y,b_vx,b_vy");
                 Boolean invalid = false;
                 for (Particle p : particles) {
                     if (p.isObstacle() && !p.isMovable())
@@ -172,12 +172,12 @@ public class Board {
                             } else {
                                 updateParticles(e1.getTime());
                                 a.bounceX();
-                                eventType = "wallBounce";
+                                eventType = "wallBounceX";
                             }
                         } else if (b != null) {
                             updateParticles(e1.getTime());
                             b.bounceY();
-                            eventType = "wallBounce";
+                            eventType = "wallBounceY";
                         }
 
                     }
@@ -193,19 +193,19 @@ public class Board {
                         }
                         if (a != null) {
                             if (b != null) {
-                                eventWriter.println(count + "," + eventType + "," + a.getCoordinates().getX() + ","
+                                eventWriter.println(count + "," + eventType +","+e1.getTime()+ "," + a.getCoordinates().getX() + ","
                                         + a.getCoordinates().getY() + "," + a.getVx() + "," + a.getVy() + ","
                                         + b.getCoordinates().getX() + "," + b.getCoordinates().getY() + ","
                                         + b.getVx() + "," + b.getVy());
 
                             }
-                            eventWriter.println(count + "," + eventType + "," + a.getCoordinates().getX() + ","
+                            eventWriter.println(count + "," + eventType + ","+e1.getTime()+"," + a.getCoordinates().getX() + ","
                                     + a.getCoordinates().getY() + "," + a.getVx()
                                     + ","
                                     + a.getVy() + ",null,null,null,null");
 
                         } else if (b != null) {
-                            eventWriter.println(count + "," + eventType + ",null,null,null,null,"
+                            eventWriter.println(count + "," + eventType +","+e1.getTime()+ ",null,null,null,null,"
                                     + b.getCoordinates().getX() + "," + b.getCoordinates().getY() + "," + b.getVx()
                                     + ","
                                     + b.getVy());
