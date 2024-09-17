@@ -81,9 +81,9 @@ public class Board {
             Double vx = 0.0, vy = 0.0;
             while ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1) {
                 Integer neg = Math.random() > 0.5 ? -1 : 1;
-                vx = Math.random() * neg;
+                vx = Math.random() * velocity * neg;
                 neg = Math.random() > 0.5 ? -1 : 1;
-                vy = Math.sqrt(1 - Math.pow(vx, 2));
+                vy = Math.sqrt(velocity - Math.pow(vx, 2));
             }
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
@@ -140,53 +140,86 @@ public class Board {
     public void updateBoard() {
         Double time = 0.0;
         String path = Paths.get(rootDir, "output.csv").toString();
+        String path_events = Paths.get(rootDir, "events.csv").toString();
         int count = 0;
+        String eventType = "";
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
-            csvWriter.println("id,x,y");
-            Boolean invalid = false;
-            for (Particle p : particles) {
-                if (p.isObstacle() && !p.isMovable())
-                    continue;
-                csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
-            }
-            while (!eventQueue.isEmpty() && count < max_frames) {
-                Event e1 = eventQueue.poll();
-                Particle a = e1.getA();
-                Particle b = e1.getB();
-                if (e1.isInvalidated(a, b)) {
-                    invalid = true;
-                } else {
-                    time += e1.getTime();
-                    if (a != null) {
-                        if (b != null) { // ambos son distintos de null
+            try (PrintWriter eventWriter = new PrintWriter(new FileWriter(path_events))) {
+                csvWriter.println("id,x,y");
+                eventWriter.println("frame,eventType,a_x,a_y,a_vx,a_vy,b_x,b_y,b_vx,b_vy");
+                Boolean invalid = false;
+                for (Particle p : particles) {
+                    if (p.isObstacle() && !p.isMovable())
+                        continue;
+                    csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
+                }
+                while (!eventQueue.isEmpty() && count < max_frames) {
+                    Event e1 = eventQueue.poll();
+                    Particle a = e1.getA();
+                    Particle b = e1.getB();
+                    if (e1.isInvalidated(a, b)) {
+                        invalid = true;
+                    } else {
+                        time += e1.getTime();
+                        if (a != null) {
+                            if (b != null) { // ambos son distintos de null
+                                updateParticles(e1.getTime());
+                                a.bounce(b);
+                                if (b.isObstacle())
+                                    eventType = "obstacleBounce";
+                                else
+                                    eventType = "particleBounce";
+                            } else {
+                                updateParticles(e1.getTime());
+                                a.bounceX();
+                                eventType = "wallBounce";
+                            }
+                        } else if (b != null) {
                             updateParticles(e1.getTime());
-                            a.bounce(b);
-
-                        } else {
-                            updateParticles(e1.getTime());
-                            a.bounceX();
+                            b.bounceY();
+                            eventType = "wallBounce";
                         }
-                    } else if (b != null) {
-                        updateParticles(e1.getTime());
-                        b.bounceY();
-                    }
 
-                }
-                if (!invalid && count * time_step <= time) {
-                    for (Particle p : particles) {
-                        if (p.isObstacle() && !p.isMovable())
-                            continue;
-                        csvWriter
-                                .println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
                     }
-                    count++;
+                    if (!invalid) {
+                        if (count * time_step <= time) {
+                            for (Particle p : particles) {
+                                if (p.isObstacle() && !p.isMovable())
+                                    continue;
+                                csvWriter
+                                        .println(p.getId() + "," + p.getCoordinates().getX() + ","
+                                                + p.getCoordinates().getY());
+                            }
+                        }
+                        if (a != null) {
+                            if (b != null) {
+                                eventWriter.println(count + "," + eventType + "," + a.getCoordinates().getX() + ","
+                                        + a.getCoordinates().getY() + "," + a.getVx() + "," + a.getVy() + ","
+                                        + b.getCoordinates().getX() + "," + b.getCoordinates().getY() + ","
+                                        + b.getVx() + "," + b.getVy());
+
+                            }
+                            eventWriter.println(count + "," + eventType + "," + a.getCoordinates().getX() + ","
+                                    + a.getCoordinates().getY() + "," + a.getVx()
+                                    + ","
+                                    + a.getVy() + ",null,null,null,null");
+
+                        } else if (b != null) {
+                            eventWriter.println(count + "," + eventType + ",null,null,null,null,"
+                                    + b.getCoordinates().getX() + "," + b.getCoordinates().getY() + "," + b.getVx()
+                                    + ","
+                                    + b.getVy());
+                        }
+                        count++;
+                    }
+                    eventQueue.clear();
+                    recalculateCollisions(particles); // recalculamos solo para las que estuvieron en colisiones
+                    invalid = false;
                 }
-                recalculateCollisions(particles); // recalculamos solo para las que estuvieron en colisiones
-                invalid = false;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (
-
-        IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
