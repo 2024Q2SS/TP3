@@ -1,10 +1,10 @@
 {
   "N": 300,
   "mass": 1.0,
-  "velocity": 6.0,
-  "time_step": 0.001,
+  "velocity": 1.0,
+  "time_step": 0.0001,
   "max_frames": 10000,
-  "movable_obs": false,
-  "obstacle_mass": 1,
+  "movable_obs": true,
+  "obstacle_mass": 3,
   "first": false
 }

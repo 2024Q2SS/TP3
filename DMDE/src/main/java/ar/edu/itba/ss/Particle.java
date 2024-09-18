@@ -171,7 +171,7 @@ public class Particle implements Comparable<Particle> {
         double dr_d_dv = (drx * dvx) + (dry * dvy);
 
         double j;
-        if (b.isObstacle()) {
+        if (b.isObstacle() && !b.isMovable()) {
             // Si B es un obstáculo, consideramos que tiene masa infinita, por lo que solo
             // this cambia su velocidad
             j = (2 * this.getMass() * dr_d_dv) / (Math.sqrt(sigma2));
@@ -190,7 +190,7 @@ public class Particle implements Comparable<Particle> {
         this.setVx(vxi);
         this.setVy(vyi);
 
-        if (!b.isObstacle()) {
+        if (!b.isObstacle() || (b.isObstacle() && b.isMovable())) {
             double vxj = b.getVx() - (jx / b.getMass());
             double vyj = b.getVy() - (jy / b.getMass());
             b.increaseCollision();

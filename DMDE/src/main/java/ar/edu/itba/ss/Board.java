@@ -96,6 +96,8 @@ public class Board {
                 Double.valueOf(0.0), Double.valueOf(0.0),
                 obstacle_mass, movable_obstacle);
         particles.add(obstacle);
+        if (movable_obstacle)
+            System.out.println("created obstacle with id " + obstacle.getId() + " and it was added as a particle");
         recalculateCollisions(particles);
     }
 
@@ -143,17 +145,13 @@ public class Board {
         String path = Paths.get(rootDir, "output.csv").toString();
         String path_events = Paths.get(rootDir, "/events/events.csv").toString();
         int count = 0;
+        int aux_count = 0;
         String eventType = "";
         try (PrintWriter csvWriter = new PrintWriter(new FileWriter(path))) {
             try (PrintWriter eventWriter = new PrintWriter(new FileWriter(path_events))) {
                 csvWriter.println("id,x,y");
                 eventWriter.println("frame,eventType,time,a_x,a_y,a_vx,a_vy,b_x,b_y,b_vx,b_vy");
                 Boolean invalid = false;
-                for (Particle p : particles) {
-                    if (p.isObstacle() && !p.isMovable())
-                        continue;
-                    csvWriter.println(p.getId() + "," + p.getCoordinates().getX() + "," + p.getCoordinates().getY());
-                }
                 while (!eventQueue.isEmpty() && count < max_frames) {
                     Event e1 = eventQueue.poll();
                     Particle a = e1.getA();
@@ -166,13 +164,13 @@ public class Board {
                             if (b != null) { // ambos son distintos de null
                                 updateParticles(e1.getTime());
                                 a.bounce(b);
-                                if (b.isObstacle()){
-                                    if(firstCollisionOnly){
-                                        if(!collisionedWithObs.add(a))
+                                if (b.isObstacle()) {
+                                    if (firstCollisionOnly) {
+                                        if (!collisionedWithObs.add(a))
                                             invalid = true;
                                     }
                                     eventType = "obstacleBounce";
-                                }else
+                                } else
                                     eventType = "particleBounce";
                             } else {
                                 updateParticles(e1.getTime());
@@ -187,14 +185,22 @@ public class Board {
 
                     }
                     if (!invalid) {
-                        if (count * time_step <= time) {
+                        if (aux_count * time_step <= time) {
                             for (Particle p : particles) {
-                                if (p.isObstacle() && !p.isMovable())
+                                if (p.isObstacle()) {
+                                    if (p.isMovable()) {
+                                        csvWriter.println(
+                                                p.getId() + "," + p.getCoordinates().getX() + ","
+                                                        + p.getCoordinates().getY());
+                                        aux_count++;
+                                    }
                                     continue;
+                                }
                                 csvWriter
                                         .println(p.getId() + "," + p.getCoordinates().getX() + ","
                                                 + p.getCoordinates().getY());
                             }
+                            aux_count++;
                         }
                         if (a != null) {
                             if (b != null) {
