@@ -13,6 +13,7 @@ public class Board {
 
     private PriorityQueue<Event> eventQueue = new PriorityQueue<>();
     private Set<Particle> particles = new TreeSet<>();
+    private Set<Particle> collisionedWithObs = new TreeSet<>();
     private Double length = 0.1;
     private Double obstacleRadius = 0.005;
     private Double particleRadius = 0.001;
@@ -26,9 +27,10 @@ public class Board {
     private Boolean movable_obstacle;
     private Double time_step;
     private Particle obstacle;
+    private Boolean firstCollisionOnly;
 
     public Board(Double mass, Double velocity, Integer N, Integer max_frames, Boolean movable_obstacle,
-            Double obstacle_mass, Double time_step) {
+            Double obstacle_mass, Double time_step, Boolean firstCollisionOnly) {
         this.mass = mass;
         this.velocity = velocity;
         this.N = N;
@@ -36,6 +38,7 @@ public class Board {
         this.obstacle_mass = obstacle_mass;
         this.movable_obstacle = movable_obstacle;
         this.time_step = time_step;
+        this.firstCollisionOnly = firstCollisionOnly;
         System.out.println("initializing board");
         initialize();
         System.out.println("finished initializing board");
@@ -79,12 +82,10 @@ public class Board {
         for (int i = 0; i < N; i++) {
             Coordinates coord = generateCoord();
             Double vx = 0.0, vy = 0.0;
-            while ((Math.pow(vx, 2) + Math.pow(vy, 2)) != 1) {
-                Integer neg = Math.random() > 0.5 ? -1 : 1;
-                vx = Math.random() * velocity * neg;
-                neg = Math.random() > 0.5 ? -1 : 1;
-                vy = Math.sqrt(velocity - Math.pow(vx, 2));
-            }
+            Integer neg = Math.random() > 0.5 ? -1 : 1;
+            vx = Math.random() * velocity * neg;
+            neg = Math.random() > 0.5 ? -1 : 1;
+            vy = Math.sqrt(velocity - Math.pow(vx, 2));
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
             particles.add(aux);
@@ -165,9 +166,13 @@ public class Board {
                             if (b != null) { // ambos son distintos de null
                                 updateParticles(e1.getTime());
                                 a.bounce(b);
-                                if (b.isObstacle())
+                                if (b.isObstacle()){
+                                    if(firstCollisionOnly){
+                                        if(!collisionedWithObs.add(a))
+                                            invalid = true;
+                                    }
                                     eventType = "obstacleBounce";
-                                else
+                                }else
                                     eventType = "particleBounce";
                             } else {
                                 updateParticles(e1.getTime());

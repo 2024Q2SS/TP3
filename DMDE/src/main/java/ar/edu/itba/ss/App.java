@@ -26,15 +26,14 @@ public class App {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        System.out.println(config);
         board = new Board(config.getMass(), config.getVelocity(), config.getN(), config.getMaxFrames(),
-                config.getMovable(), config.getObstacleMass(), config.getTimeStep());
+                config.getMovable(), config.getObstacleMass(), config.getTimeStep(), config.getFirst());
     }
 
     public static void main(String[] args) {
         App app = new App();
         app.setup();
-        System.out.println(config);
         board.updateBoard();
     }
 }

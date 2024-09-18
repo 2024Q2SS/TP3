@@ -6,8 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 delta_t = 0.009
-obs_delta_t = 0.01
+obs_delta_t = 0.05
 obstacle_radius = 0.005
+particle_radius = 0.001
 obstacle_perimeter = 2 * np.pi * obstacle_radius
 wall_size = 0.1
 walls_perimeter = 4 * wall_size
@@ -29,7 +30,7 @@ def calculate_pressure(file_path):
     for i, row in df.iterrows():
         total_time += row["time"]
         if total_time >= delta_counts * delta_t:
-            print(len(pressures_in_delta_t))
+            # print(len(pressures_in_delta_t))
             P = sum(pressures_in_delta_t) / (len(pressures_in_delta_t) * L * delta_t)
             pressures.append(P)
             delta_counts += 1
@@ -53,6 +54,7 @@ def calculate_pressures_obs(file_path):
                
         # Calculate the pressure at each delta_t interval
         if total_time >= delta_counts * obs_delta_t:
+            print(len(pressures_in_delta_t))
             if pressures_in_delta_t:  # Avoid division by zero
                 P = sum(pressures_in_delta_t) / (len(pressures_in_delta_t) * L * delta_t)
                 pressures.append(P)
@@ -67,9 +69,9 @@ def calculate_pressures_obs(file_path):
             b_y = row["b_y"]
             a_vx = row["a_vx"]
             a_vy = row["a_vy"]
-            p_x = b_x - a_x
-            p_y = b_y - a_y
-            
+            p_x = (b_x - a_x) /(obstacle_radius + particle_radius)
+            p_y = (b_y - a_y) /(obstacle_radius + particle_radius)
+
             normal_velocity = abs((p_x*a_vx) + (p_y * a_vy))
             pressures_in_delta_t.append(2 * normal_velocity)  # Double the normal velocity as force
 
