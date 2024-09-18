@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 delta_t = 0.009
+obs_delta_t = 0.01
 obstacle_radius = 0.005
 obstacle_perimeter = 2 * np.pi * obstacle_radius
 wall_size = 0.1
@@ -49,9 +50,9 @@ def calculate_pressures_obs(file_path):
     
     for i, row in df.iterrows():
         total_time += row["time"]
-        
+               
         # Calculate the pressure at each delta_t interval
-        if total_time >= delta_counts * delta_t:
+        if total_time >= delta_counts * obs_delta_t:
             if pressures_in_delta_t:  # Avoid division by zero
                 P = sum(pressures_in_delta_t) / (len(pressures_in_delta_t) * L * delta_t)
                 pressures.append(P)
@@ -60,7 +61,16 @@ def calculate_pressures_obs(file_path):
 
         # Check for obstacle bounces
         if row["eventType"] == "obstacleBounce":
-            normal_velocity = np.sqrt(row["a_vx"]**2 + row["a_vy"]**2)  # Calculate normal velocity on impact
+            a_x = row["a_x"]
+            a_y = row["a_y"]
+            b_x = row["b_x"]
+            b_y = row["b_y"]
+            a_vx = row["a_vx"]
+            a_vy = row["a_vy"]
+            p_x = b_x - a_x
+            p_y = b_y - a_y
+            
+            normal_velocity = abs((p_x*a_vx) + (p_y * a_vy))
             pressures_in_delta_t.append(2 * normal_velocity)  # Double the normal velocity as force
 
     return pressures
@@ -89,6 +99,34 @@ def plot_pressure_vs_time(summary_df):
     plt.savefig("pressure_vs_time.png")  # Save plot as an image
     plt.show()
 
+def plot_both_pressures(summary_df,obs_summary_df):
+    plt.figure(figsize=(8, 6))
+
+    # Plot mean pressure against deltaT with error bars for std_dev
+    plt.errorbar(summary_df["deltaT"], summary_df["mean_pressure"], 
+                 yerr=summary_df["std_dev"], fmt='o', capsize=5, label='Mean Pressure (with Std Dev)',color='blue')
+    
+    plt.errorbar(obs_summary_df["deltaT"], obs_summary_df["mean_pressure"], 
+                 yerr=obs_summary_df["std_dev"], fmt='o', capsize=5, label='Mean Obs Pressure (with Std Dev)', color='red')
+    
+    # Optionally, you can also plot with error instead of std_dev by uncommenting the line below:
+    # plt.errorbar(summary_df["deltaT"], summary_df["mean_pressure"], yerr=summary_df["error"], fmt='o', capsize=5, label='Mean Pressure (with Error)')
+
+    # Set plot labels and title
+    plt.xlabel('Time (deltaT)')
+    plt.ylabel('Pressure')
+    plt.xlim(left=0)
+    plt.ylim(bottom = 0)
+    plt.title('Pressure vs Time with Error Bars')
+    plt.legend()
+
+    # Show the plot
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("pressure_vs_time.png")  # Save plot as an image
+    plt.show()
+
+
 def main():
     # Initialize list to store pressure values for each run (list of lists)
     pressures = []
@@ -106,20 +144,27 @@ def main():
     truncated_pressures = truncate_pressures(pressures)
     truncated_obs_pressures = truncate_pressures(obs_pressures)
     
-
+    
     # Convert truncated pressures to a NumPy array for easier calculations
     pressures_np = np.array(truncated_pressures)
+    obs_pressures_np = np.array(truncated_obs_pressures)
 
     # Automatically determine the number of entries in the pressure data
     num_entries = pressures_np.shape[1]
+    obs_num_entries = obs_pressures_np.shape[1]
 
     # Dynamically generate deltaT values based on the number of pressure entries
     deltaT_values = [delta_t * (i + 1) for i in range(num_entries)]
+    obs_deltaT_values = [obs_delta_t * (i + 1) for i in range(obs_num_entries)]
 
     # Calculate mean, std dev, and error (standard error of the mean) for each deltaT
     mean_pressures = pressures_np.mean(axis=0)  # Mean across the runs for each deltaT
     std_dev_pressures = pressures_np.std(axis=0)  # Standard deviation for each deltaT
     error_pressures = std_dev_pressures / np.sqrt(pressures_np.shape[0])  # Standard error
+    
+    obs_mean_pressures = obs_pressures_np.mean(axis=0)
+    obs_std_dev_pressures = obs_pressures_np.std(axis = 0)
+    obs_error_pressures = obs_std_dev_pressures / np.sqrt(obs_pressures_np.shape[0])
 
     # Create a summary DataFrame with deltaT, mean_pressure, std_dev, and error
     summary_df = pd.DataFrame({
@@ -129,10 +174,24 @@ def main():
         "error": error_pressures,
     })
     
+    # Create a summary DataFrame with deltaT, mean_pressure, std_dev, and error
+    obs_summary_df = pd.DataFrame({
+        "deltaT": obs_deltaT_values,
+        "mean_pressure": obs_mean_pressures,
+        "std_dev": obs_std_dev_pressures,
+        "error": obs_error_pressures,
+    })
+
+
     # Save the summary DataFrame to a new CSV file
     summary_df.to_csv("pressure_summary.csv", index=False)
     print("Summary CSV saved as 'pressure_summary.csv'")
     plot_pressure_vs_time(summary_df)
+    obs_summary_df.to_csv("obs_pressure_summary.csv", index=False)
+    print("Summary CSV saved as 'obs_pressure_summary.csv'")
+    plot_pressure_vs_time(obs_summary_df)
+    plot_both_pressures(summary_df,obs_summary_df)
+
 
 
 
