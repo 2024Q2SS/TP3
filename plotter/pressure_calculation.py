@@ -90,8 +90,9 @@ def calculate_pressures_obs(file_path):
 def plot_pressure_vs_time(summary_df):
     plt.figure()
     ax = plt.subplot(111)
+
     # Plot mean pressure against deltaT with error bars for std_dev
-    plt.errorbar(
+    ax.errorbar(
         summary_df["deltaT"],
         summary_df["mean_pressure"],
         yerr=summary_df["std_dev"],
@@ -100,26 +101,24 @@ def plot_pressure_vs_time(summary_df):
         label="Mean Pressure",
     )
 
-    # Shrink current axis by 20%
+    # Shrink the current axis to make space for the legend
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax.set_position(
+        [box.x0, box.y0, box.width * 0.75, box.height]
+    )  # Shrink by 25% to make room
 
-    # Put a legend to the right of the current axis
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    # Optionally, you can also plot with error instead of std_dev by uncommenting the line below:
-    # plt.errorbar(summary_df["deltaT"], summary_df["mean_pressure"], yerr=summary_df["error"], fmt='o', capsize=5, label='Mean Pressure (with Error)')
+    # Put the legend outside the plot, on the top right
+    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))  # Top right outside the plot
 
     # Set plot labels and title
-    plt.xlabel("Time (s)")
-    plt.ylabel("Pressure (N/m)")
-    plt.xlim(left=0)
-    plt.ylim(bottom=0)
-    plt.title("Pressure vs Time")
-    plt.legend()
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Pressure (N/m)")
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+    ax.set_title("Pressure vs Time")
 
-    # Show the plot
-    plt.grid(True)
-    plt.tight_layout()
+    # Show grid and save the plot
+    ax.grid(True)
     plt.savefig("pressure_vs_time.png")  # Save plot as an image
     plt.show()
 
@@ -127,6 +126,7 @@ def plot_pressure_vs_time(summary_df):
 def plot_both_pressures(summary_df, obs_summary_df):
     plt.figure(figsize=(8, 6))
     ax = plt.subplot(111)
+
     # Plot mean pressure against deltaT with error bars for std_dev
     plt.errorbar(
         summary_df["deltaT"],
@@ -147,13 +147,15 @@ def plot_both_pressures(summary_df, obs_summary_df):
         label="Mean Obs Pressure",
         color="red",
     )
-    # Shrink current axis by 20%
+
+    # Shrink the current axis to make space for the legend
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    # Put a legend to the right of the current axis
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    # Optionally, you can also plot with error instead of std_dev by uncommenting the line below:
-    # plt.errorbar(summary_df["deltaT"], summary_df["mean_pressure"], yerr=summary_df["error"], fmt='o', capsize=5, label='Mean Pressure (with Error)')
+    ax.set_position(
+        [box.x0, box.y0, box.width * 0.75, box.height]
+    )  # Shrink by 25% to make room
+
+    # Put the legend outside the plot, top right
+    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))  # Top right outside the plot
 
     # Set plot labels and title
     plt.xlabel("Time (s)")
@@ -161,11 +163,9 @@ def plot_both_pressures(summary_df, obs_summary_df):
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     plt.title("Pressure vs Time")
-    plt.legend()
 
-    # Show the plot
+    # Show grid and save the plot
     plt.grid(True)
-    plt.tight_layout()
     plt.savefig("pressure_vs_time.png")  # Save plot as an image
     plt.show()
 
