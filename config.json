@@ -1,7 +1,7 @@
 {
   "N": 300,
   "mass": 1.0,
-  "velocity": 1.0,
+  "velocity": 3.0,
   "time_step": 0.0005,
   "max_frames": 10000,
   "movable_obs": false,

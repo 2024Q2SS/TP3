@@ -85,7 +85,7 @@ public class Board {
             Integer neg = Math.random() > 0.5 ? -1 : 1;
             vx = Math.random() * velocity * neg;
             neg = Math.random() > 0.5 ? -1 : 1;
-            vy = Math.sqrt(velocity - Math.pow(vx, 2)) * neg;
+            vy = Math.sqrt(Math.pow(velocity, 2) - Math.pow(vx, 2)) * neg;
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
             particles.add(aux);
@@ -152,6 +152,22 @@ public class Board {
                 csvWriter.println("id,x,y");
                 eventWriter.println("frame,eventType,time,a_x,a_y,a_vx,a_vy,b_x,b_y,b_vx,b_vy");
                 Boolean invalid = false;
+                for (Particle p : particles) {
+                    if (p.isObstacle()) {
+                        if (p.isMovable()) {
+                            csvWriter.println(
+                                    p.getId() + "," + p.getCoordinates().getX() + ","
+                                            + p.getCoordinates().getY());
+                            aux_count++;
+                        }
+                        continue;
+                    }
+                    csvWriter
+                            .println(p.getId() + "," + p.getCoordinates().getX() + ","
+                                    + p.getCoordinates().getY());
+                }
+                aux_count++;
+
                 while (!eventQueue.isEmpty() && count < max_frames) {
                     Event e1 = eventQueue.poll();
                     Particle a = e1.getA();
@@ -232,7 +248,9 @@ public class Board {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } catch (IOException e) {
+        } catch (
+
+        IOException e) {
             e.printStackTrace();
         }
     }
