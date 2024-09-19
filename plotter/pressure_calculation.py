@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-delta_t = 0.009
-obs_delta_t = 0.05
 obstacle_radius = 0.005
 particle_radius = 0.001
 obstacle_perimeter = 2 * np.pi * obstacle_radius
@@ -23,7 +21,7 @@ def truncate_pressures(pressures):
 
 
 # Function to calculate the pressure from a single CSV
-def calculate_pressure(file_path):
+def calculate_pressure(file_path, delta_t):
     # Read the CSV file
     df = pd.read_csv(file_path)
     pressures_in_delta_t = []
@@ -46,7 +44,7 @@ def calculate_pressure(file_path):
     return pressures
 
 
-def calculate_pressures_obs(file_path):
+def calculate_pressures_obs(file_path, obs_delta_t):
     df = pd.read_csv(file_path)
     pressures_in_delta_t = []
     delta_counts = 1
@@ -62,7 +60,7 @@ def calculate_pressures_obs(file_path):
             print(len(pressures_in_delta_t))
             if pressures_in_delta_t:  # Avoid division by zero
                 P = sum(pressures_in_delta_t) / (
-                    len(pressures_in_delta_t) * L * delta_t
+                    len(pressures_in_delta_t) * L * obs_delta_t
                 )
                 pressures.append(P)
             delta_counts += 1
@@ -170,16 +168,39 @@ def plot_both_pressures(summary_df, obs_summary_df):
     plt.show()
 
 
+def calculate_deltas(file_path):
+    # Load the CSV file
+    df = pd.read_csv(file_path)
+
+    # Sum the total time of all events
+    total_time = df["time"].sum()
+
+    # Calculate delta_t and obs_delta_t by dividing the total time by 10
+    delta_t = total_time / 14
+    obs_delta_t = (
+        total_time / 10
+    )  # Assuming obs_delta_t is also calculated the same way
+
+    return delta_t, obs_delta_t
+
+
 def main():
     # Initialize list to store pressure values for each run (list of lists)
     pressures = []
     obs_pressures = []
+    delta_t = 0
+    obs_delta_t = 0
 
     # Process each output CSV to calculate pressure
     for i in range(1, 11):
         file_path = f"../DMDE/events/events_{i}.csv"
-        run_pressures = calculate_pressure(file_path)  # Simulated pressure data
-        run_obs_pressures = calculate_pressures_obs(file_path)
+        deltas = calculate_deltas(file_path)
+        delta_t = deltas[0]
+        obs_delta_t = deltas[1]
+        run_pressures = calculate_pressure(
+            file_path, delta_t
+        )  # Simulated pressure data
+        run_obs_pressures = calculate_pressures_obs(file_path, obs_delta_t)
         obs_pressures.append(run_obs_pressures)
         pressures.append(run_pressures)
 

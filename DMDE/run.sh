@@ -19,5 +19,6 @@ do
     fi
 done
 
+cd ../plotter
 # Run the Python script for pressure calculations
-python ../plotter/pressure_calculations.py
+python pressure_calculation.py
