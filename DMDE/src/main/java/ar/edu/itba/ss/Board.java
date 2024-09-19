@@ -181,12 +181,15 @@ public class Board {
                                 updateParticles(e1.getTime());
                                 a.bounce(b);
                                 if (b.isObstacle()) {
-                                    if (firstCollisionOnly) {
+                                    if (firstCollisionOnly && !collisionedWithObs.contains(a)) {
                                         eventType = "firstCollision";
+                                        collisionedWithObs.add(a);
+                                    } else {
+                                        eventType = "obstacleBounce";
                                     }
-                                    eventType = "obstacleBounce";
-                                } else
+                                } else {
                                     eventType = "particleBounce";
+                                }
                             } else {
                                 updateParticles(e1.getTime());
                                 a.bounceX();
