@@ -182,8 +182,7 @@ public class Board {
                                 a.bounce(b);
                                 if (b.isObstacle()) {
                                     if (firstCollisionOnly) {
-                                        if (!collisionedWithObs.add(a))
-                                            invalid = true;
+                                        eventType = "firstCollision";
                                     }
                                     eventType = "obstacleBounce";
                                 } else
