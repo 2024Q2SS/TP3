@@ -85,7 +85,7 @@ public class Board {
             Integer neg = Math.random() > 0.5 ? -1 : 1;
             vx = Math.random() * velocity * neg;
             neg = Math.random() > 0.5 ? -1 : 1;
-            vy = Math.sqrt(velocity - Math.pow(vx, 2));
+            vy = Math.sqrt(velocity - Math.pow(vx, 2)) * neg;
             Particle aux = new Particle(i, coord, particleRadius, vx, vy, mass);
             System.out.println("created particle " + i);
             particles.add(aux);
