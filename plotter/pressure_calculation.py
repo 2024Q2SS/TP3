@@ -27,20 +27,26 @@ def calculate_pressure(file_path, delta_t):
     pressures_in_delta_t = []
     delta_counts = 1
     total_time = 0
+    obs_bounce = 0
     L = walls_perimeter
     pressures = []
     for i, row in df.iterrows():
         total_time += row["time"]
         if total_time >= delta_counts * delta_t:
             # print(len(pressures_in_delta_t))
-            P = sum(pressures_in_delta_t) / (len(pressures_in_delta_t) * L * delta_t)
+            P = sum(pressures_in_delta_t) / (
+                (len(pressures_in_delta_t) + obs_bounce) * L * delta_t
+            )
             pressures.append(P)
             delta_counts += 1
             pressures_in_delta_t = []
+            obs_bounce = 0
         if row["eventType"] == "wallBounceX":
             pressures_in_delta_t.append(2 * abs(row["a_vx"]))
         elif row["eventType"] == "wallBounceY":
             pressures_in_delta_t.append(2 * abs(row["b_vy"]))
+        elif row["eventType"] == "obstacleBounce":
+            obs_bounce += 1
     return pressures
 
 
@@ -49,6 +55,7 @@ def calculate_pressures_obs(file_path, obs_delta_t):
     pressures_in_delta_t = []
     delta_counts = 1
     total_time = 0
+    wall_bounce = 0
     L = obstacle_perimeter  # The perimeter of the circular obstacle
     pressures = []
 
@@ -60,11 +67,12 @@ def calculate_pressures_obs(file_path, obs_delta_t):
             print(len(pressures_in_delta_t))
             if pressures_in_delta_t:  # Avoid division by zero
                 P = sum(pressures_in_delta_t) / (
-                    len(pressures_in_delta_t) * L * obs_delta_t
+                    (len(pressures_in_delta_t) + wall_bounce) * L * obs_delta_t
                 )
                 pressures.append(P)
             delta_counts += 1
             pressures_in_delta_t = []
+            wall_bounce = 0
 
         # Check for obstacle bounces
         if row["eventType"] == "obstacleBounce":
@@ -81,6 +89,8 @@ def calculate_pressures_obs(file_path, obs_delta_t):
             pressures_in_delta_t.append(
                 2 * normal_velocity
             )  # Double the normal velocity as force
+        elif row["eventType"] != "particleBounce":
+            wall_bounce += 1
 
     return pressures
 
