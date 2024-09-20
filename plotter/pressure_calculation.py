@@ -34,19 +34,14 @@ def calculate_pressure(file_path, delta_t):
         total_time += row["time"]
         if total_time >= delta_counts * delta_t:
             # print(len(pressures_in_delta_t))
-            P = sum(pressures_in_delta_t) / (
-                (len(pressures_in_delta_t) + obs_bounce) * L * delta_t
-            )
+            P = sum(pressures_in_delta_t) / (len(pressures_in_delta_t) * L * delta_t)
             pressures.append(P)
             delta_counts += 1
             pressures_in_delta_t = []
-            obs_bounce = 0
         if row["eventType"] == "wallBounceX":
             pressures_in_delta_t.append(2 * abs(row["a_vx"]))
         elif row["eventType"] == "wallBounceY":
             pressures_in_delta_t.append(2 * abs(row["b_vy"]))
-        elif row["eventType"] == "obstacleBounce":
-            obs_bounce += 1
     return pressures
 
 
@@ -67,15 +62,14 @@ def calculate_pressures_obs(file_path, obs_delta_t):
             print(len(pressures_in_delta_t))
             if pressures_in_delta_t:  # Avoid division by zero
                 P = sum(pressures_in_delta_t) / (
-                    (len(pressures_in_delta_t) + wall_bounce) * L * obs_delta_t
+                    len(pressures_in_delta_t) * L * obs_delta_t
                 )
                 pressures.append(P)
             delta_counts += 1
             pressures_in_delta_t = []
-            wall_bounce = 0
 
         # Check for obstacle bounces
-        if row["eventType"] == "obstacleBounce":
+        if row["eventType"] == "obstacleBounce" or row["eventType"] == "firstCollision":
             a_x = row["a_x"]
             a_y = row["a_y"]
             b_x = row["b_x"]
@@ -89,9 +83,6 @@ def calculate_pressures_obs(file_path, obs_delta_t):
             pressures_in_delta_t.append(
                 2 * normal_velocity
             )  # Double the normal velocity as force
-        elif row["eventType"] != "particleBounce":
-            wall_bounce += 1
-
     return pressures
 
 
@@ -132,11 +123,10 @@ def plot_pressure_vs_time(summary_df):
 
 
 def plot_both_pressures(summary_df, obs_summary_df):
-    plt.figure(figsize=(8, 6))
-    ax = plt.subplot(111)
+    _, ax = plt.subplots(figsize=(8, 6))
 
     # Plot mean pressure against deltaT with error bars for std_dev
-    plt.errorbar(
+    ax.errorbar(
         summary_df["deltaT"],
         summary_df["mean_pressure"],
         yerr=summary_df["std_dev"],
@@ -144,33 +134,33 @@ def plot_both_pressures(summary_df, obs_summary_df):
         capsize=5,
         label="Mean Pressure",
         color="blue",
+        fontsize=20,
     )
 
-    plt.errorbar(
+    ax.errorbar(
         obs_summary_df["deltaT"],
         obs_summary_df["mean_pressure"],
         yerr=obs_summary_df["std_dev"],
         fmt="o",
         capsize=5,
-        label="Mean Obs Pressure",
+        label="Mean Pressure (on obstacle)",
         color="red",
+        fontsize=20,
     )
 
-    # Shrink the current axis to make space for the legend
-    box = ax.get_position()
-    ax.set_position(
-        [box.x0, box.y0, box.width * 0.75, box.height]
-    )  # Shrink by 25% to make room
+    # Shrink by 25% to make room
 
     # Put the legend outside the plot, top right
-    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))  # Top right outside the plot
+    ax.legend(
+        loc="upper right", bbox_to_anchor=(1.4, 1), fontsize=20
+    )  # Top right outside the plot
 
+    ax.tick_params(axis="both", which="major", labelsize=20)
     # Set plot labels and title
-    plt.xlabel("Time (s)")
-    plt.ylabel("Pressure (N/m)")
-    plt.xlim(left=0)
-    plt.ylim(bottom=0)
-    plt.title("Pressure vs Time")
+    ax.set_xlabel("Time (s)", fontsize=20)
+    ax.set_ylabel("Pressure (N/m)", fontsize=20)
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
 
     # Show grid and save the plot
     plt.grid(True)
@@ -203,7 +193,7 @@ def main():
 
     # Process each output CSV to calculate pressure
     for i in range(1, 11):
-        file_path = f"../DMDE/events/events_{i}.csv"
+        file_path = f"../DMDE/events/events1/events_{i}.csv"
         deltas = calculate_deltas(file_path)
         delta_t = deltas[0]
         obs_delta_t = deltas[1]

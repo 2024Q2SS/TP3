@@ -18,14 +18,7 @@ do
         echo "Error: ${EVENTS_DIR2}/output.csv not found after run $i"
         exit 1
     fi
-    if [ -f "events.csv" ]; then
-        # Rename the CSV to events_i.csv where i is the run number
-        mv "events.csv" "${EVENTS_DIR}m_i/events_${i}.csv"
-    else
-        echo "Error: ${EVENTS_DIR}/events.csv not found after run $i"
-        exit 1
-    fi
-
+    
 done
 
 #cd ../plotter
